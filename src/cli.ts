@@ -3,6 +3,7 @@
 import { Command } from "commander";
 import { getConfig } from "./config.js";
 import * as authClient from "./auth/client.js";
+import * as wallet from "./wallet/queries.js";
 
 const program = new Command();
 
@@ -105,14 +106,59 @@ program
     .command("status")
     .description("Check wallet status")
     .action(async () => {
-        console.log("TODO: Query wallet status via MCP + Indexer");
+        const address = authClient.getWalletAddress();
+        if (!address) {
+            console.error("Not authenticated. Run: algopay auth login <email>");
+            process.exit(1);
+        }
+        const opts = program.opts();
+        const network = opts.resolvedNetwork ?? "testnet";
+        try {
+            const status = await wallet.getStatus(address, network);
+            if (opts.json) {
+                console.log(JSON.stringify(status));
+            } else {
+                console.log(`\n📱 Wallet Status`);
+                console.log(`   Address:    ${status.address}`);
+                console.log(`   Network:    ${status.network}`);
+                console.log(`   Last Round: ${status.algodStatus.lastRound}`);
+                console.log(`   Authenticated: ${status.authenticated}\n`);
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     });
 
 program
     .command("balance")
     .description("Check wallet balance")
     .action(async () => {
-        console.log("TODO: Query ALGO + USDC + ASA balances");
+        const address = authClient.getWalletAddress();
+        if (!address) {
+            console.error("Not authenticated. Run: algopay auth login <email>");
+            process.exit(1);
+        }
+        const opts = program.opts();
+        const network = opts.resolvedNetwork ?? "testnet";
+        try {
+            const bal = await wallet.getBalance(address, network);
+            if (opts.json) {
+                console.log(JSON.stringify(bal));
+            } else {
+                console.log(`\n💰 Wallet Balance (${network})`);
+                console.log(`   ALGO: ${bal.algo.displayAmount}`);
+                if (bal.assets.length > 0) {
+                    for (const a of bal.assets) {
+                        console.log(`   ${a.unitName || a.name}: ${a.displayAmount}`);
+                    }
+                }
+                console.log(`   USDC Total: $${bal.totalUsdcBalance}\n`);
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     });
 
 program
@@ -138,8 +184,43 @@ program
     .description("View transaction history")
     .option("--limit <n>", "Number of transactions", "10")
     .option("--type <type>", "Filter by type (send|receive|trade)")
-    .action(async () => {
-        console.log("TODO: Query Indexer for tx history");
+    .action(async (cmdOpts: { limit: string; type?: string }) => {
+        const address = authClient.getWalletAddress();
+        if (!address) {
+            console.error("Not authenticated. Run: algopay auth login <email>");
+            process.exit(1);
+        }
+        const opts = program.opts();
+        const network = opts.resolvedNetwork ?? "testnet";
+        try {
+            const txns = await wallet.getHistory(address, network, {
+                limit: parseInt(cmdOpts.limit, 10),
+                type: cmdOpts.type as any,
+            });
+            if (opts.json) {
+                console.log(JSON.stringify(txns));
+            } else {
+                console.log(`\n📜 Transaction History (${network})\n`);
+                if (txns.length === 0) {
+                    console.log("   No transactions found.\n");
+                } else {
+                    for (const tx of txns) {
+                        const date = new Date(tx.roundTime * 1000).toISOString();
+                        const arrow = tx.type === "send" ? "⬆" : "⬇";
+                        const amt = tx.assetId
+                            ? `${tx.amount} (ASA ${tx.assetId})`
+                            : `${(tx.amount / 1_000_000).toFixed(6)} ALGO`;
+                        console.log(`   ${arrow} ${tx.type.toUpperCase()} ${amt}`);
+                        console.log(`     ${tx.type === "send" ? "To" : "From"}: ${tx.receiver || tx.sender}`);
+                        console.log(`     Round: ${tx.confirmedRound} | Fee: ${tx.fee} | ${date}`);
+                        console.log(`     TX: ${tx.id}\n`);
+                    }
+                }
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     });
 
 // --- Transaction commands ---
