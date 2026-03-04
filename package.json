@@ -1,0 +1,53 @@
+{
+    "name": "algopay",
+    "version": "0.1.0",
+    "description": "Agentic payment wallet for Algorand — Stripe for AI Agents",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "bin": {
+        "algopay": "./dist/cli.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsx watch src/cli.ts",
+        "start": "node dist/cli.js",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:connections": "vitest run --reporter=verbose tests/connections/",
+        "lint": "eslint src/",
+        "clean": "rimraf dist"
+    },
+    "keywords": [
+        "algorand",
+        "agentic",
+        "payments",
+        "x402",
+        "wallet",
+        "AI",
+        "DePIN"
+    ],
+    "author": "soumyacodes007",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/soumyacodes007/algopay.git"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "dependencies": {
+        "algosdk": "^3.2.0",
+        "commander": "^13.1.0",
+        "chalk": "^5.4.1",
+        "ora": "^8.2.0",
+        "conf": "^13.1.0",
+        "dotenv": "^16.5.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.15.0",
+        "typescript": "^5.8.0",
+        "tsx": "^4.19.4",
+        "vitest": "^3.1.0",
+        "rimraf": "^6.0.1"
+    }
+}

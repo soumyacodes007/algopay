@@ -1,89 +1,224 @@
-hey we are building the agentic payment wallet for algorand which will be similar to coinbase awal .
-for each task see reference code first 
-test it (write tests first for connection then write code then test it )
+# Algopay — Bulletproof Architecture (Validated March 2026)
 
+> Agentic payment wallet for Algorand. The "Stripe for AI Agents" on Algorand.
+> Inspired by [Coinbase AWAL](https://docs.cdp.coinbase.com/agentic-wallet/skills/overview).
 
+## Core Principles
 
-https://docs.cdp.coinbase.com/agentic-wallet/skills/overview
+1. **Keys never touch the agent/LLM or CLI** — all signing via Intermezzo
+2. **Test-first** — write connection tests → write code → integration tests
+3. **Reference code first** — check external repos before implementing
 
-this is your inspiration 
+---
 
+## Dependency Availability Matrix (Validated)
 
-### the arch 
+| # | Component | Status | Evidence | Action |
+|---|---|---|---|---|
+| 1 | **Intermezzo** (Algorand Foundation, HashiCorp Vault KMS) | ✅ Live | REST API + OAuth2, GitHub `algorandfoundation/intermezzo`, used by WorldChess in production, launched Q3 2025 | Self-host via Docker Compose |
+| 2 | **algorand-mcp** (GoPlausible, 125+ tools) | ✅ Live | npm `@goplausible/algorand-mcp`, GitHub `GoPlausible/algorand-mcp` | `npm install -g @goplausible/algorand-mcp` |
+| 3 | **algorand-remote-mcp-lite** (Wallet Edition) | ✅ Live | OAuth 2.0/PKCE + OIDC social logins, on MCP Market | Plug in as MCP server |
+| 4 | **GoPlausible x402 Bazaar** (facilitator + discovery) | ✅ Live | API at `api.goplausible.xyz`, `/discovery/resources` endpoint for service search, GoPlausible is official Algorand x402 facilitator | Direct REST calls |
+| 5 | **GoPlausible OpenClaw Plugin** | ✅ Live | npm `@goplausible/openclaw-algorand-plugin`, LobeHub listing (March 2026) | Install for buyer-agent demos |
+| 6 | **Vestige MCP** (DEX aggregator + price feeds) | ✅ Live | GitHub `vestige-fi/vestige-mcp`, $200M+ lifetime volume, WebSocket API | MCP server integration |
+| 7 | **AlgoKit 4.0** (tx builder, atomic composer) | ✅ Live | Python + TypeScript SDKs, launched 2025 | `pip install algokit-utils` |
+| 8 | **Algorand algod + Indexer** | ✅ Live | Core Algorand REST APIs, always available | Standard node connection |
+| 9 | **AP2** (Google Cloud Agent Payments) | ✅ Live | Algorand is official Google Cloud AP2 partner | A2A protocol integration |
+| 10 | **Pera Fund** (fiat + cross-chain onramp) | ✅ Live | Launched Jan 2026, Meld fiat + Exodus cross-chain swaps | Link to Pera mobile app |
+| 11 | **Circle USDC APIs** | ✅ Live | Circle APIs for Algorand USDC since 2020 | REST API integration |
+| 12 | **VibeKit** (project scaffolding) | ✅ Live | Launched Feb 5, 2026 by Algorand DevRel, `npx vibekit init` | Use for project init |
+| 13 | **GoPlausible dOAuth (email OTP)** | ❌ No public endpoint | dOAuth protocol exists but no confirmed public `POST /auth/login` REST endpoint for email+OTP | **BUILD YOURSELF** (see Auth section below) |
+| 14 | **ARC-58 Smart Wallet** | ⚠️ Draft | ARC-58 spec is DRAFT, not production-deployed as standard. Akita Wallet has a reference implementation | **BUILD YOURSELF** or use simplified version (see Smart Wallet section below) |
+
+---
+
+## Production Architecture
+
+```
 AI Agent / User
-       ↓ (CLI or MCP skill calls)
-Algopay CLI (`npx algopay`)
+       ↓ (CLI commands or MCP skill calls)
+Algopay CLI (`npx algopay`) — TypeScript
        ↓
-MCP Runtime Layer (Production)
-   ├── algorand-mcp SERVER (125+ tools)
-   └── algorand-remote-mcp-lite (Wallet Edition – OAuth/OIDC + signing)
+MCP Runtime Layer
+   ├── algorand-mcp SERVER (@goplausible/algorand-mcp, 125+ tools)
+   └── algorand-remote-mcp-lite (Wallet Edition — OAuth/OIDC + signing)
        ↓
-Backend (FastAPI – Render / Railway / AWS)
-   ├── Auth middleware (email OTP / OAuth)
-   ├── Guardrails (spending limits, reputation, KYT)
-   ├── Tx builder (AlgoKit – atomic groups)
-   └── Signing Service → Intermezzo (Algorand Foundation custodial API on HashiCorp Vault)
-                  ↓ (REST calls)
-ARC-58 Smart Wallet (on-chain)
+Backend (FastAPI — Render / Railway / AWS)
+   ├── Auth middleware (self-hosted email OTP via SendGrid/Resend)
+   ├── Guardrails (spending limits, KYT blocklist, reputation)
+   ├── Tx builder (AlgoKit — atomic groups)
+   ├── Monetize SDK (x402 paywall middleware for developers)
+   └── Signing Service → Intermezzo (self-hosted, Docker + Vault)
+                  ↓ (REST calls, OAuth2 tokens)
+On-Chain Layer
+   ├── Standard Algorand Account (MVP) or ARC-58 Smart Wallet (V2)
    ├── Fee Pooling via Atomic Groups (backend wallet pays ALL fees)
    ├── x402 + AP2 dual-protocol support
-   ├── Plugins (revenue split, escrow, dynamic limits)
-   └── Vestige MCP integration (price feeds + smart swap routing)
+   └── USDC (ASA) as primary stablecoin
                   ↓
 Algorand Mainnet / Testnet
        ↑
-Ecosystem Services
-   x402 Bazaar (GoPlausible) + AP2 Endpoints + Vestige MCP
+Ecosystem Services (all ✅ live)
+   ├── x402 Bazaar (GoPlausible — api.goplausible.xyz/discovery/resources)
+   ├── AP2 Endpoints (Google Cloud partnership)
+   ├── Vestige MCP (price feeds + smart swap routing)
+   ├── Pera Fund (fiat onramp via Meld + cross-chain via Exodus)
+   └── Circle USDC APIs (direct stablecoin integration)
+```
 
+---
 
+## Workarounds for Unavailable Components
 
-This is the exact stack recommended by Algorand Foundation + GoPlausible for production agentic wallets.
-Keys never touch the agent/LLM or CLI.
-Intermezzo provides AWAL-level TEE-like security (custodial API on Vault).
-Fee pooling = true gasless UX.
-Everything is already live in production (WorldChess uses Intermezzo).
-Complete AWAL → Algopay Feature & Command Mapping
+### 1. Auth Layer (Replacing GoPlausible dOAuth)
 
+**Problem:** GoPlausible's dOAuth protocol exists but has no confirmed public email+OTP REST endpoint.
 
+**Solution:** Self-hosted auth in FastAPI backend. This is actually MORE production-grade because you control the entire flow.
 
-AWAL Feature / Command Algopay Production Command How It Works (Production Stack)npx awal status npx algopay status MCP runtime queries Intermezzo + ARC-58 state + indexernpx awal auth login <email> npx algopay auth login <email> GoPlausible OAuth/OTP → returns flowId (Intermezzo session)npx awal auth verify <flowId> <otp> npx algopay auth verify <flowId> <otp> Completes auth; Intermezzo creates/attaches walletnpx awal balance [--chain] npx algopay balance Algorand indexer + native USDC asset query via MCPnpx awal address npx algopay address Returns ARC-58 smart wallet addressnpx awal show npx algopay show Opens React companion dashboard (Vercel-hosted)npx awal send <amount> <recipient> npx algopay send <amount> <recipient> Backend builds atomic group → Intermezzo signs → fee poolingnpx awal trade <amount> <from> <to> npx algopay trade <amount> <from> <to> Vestige MCP for routing → Tinyman/Humble swap in atomic group → fee poolingnpx awal x402 bazaar search <query> npx algopay x402 bazaar search <query> Direct call to GoPlausible Bazaar (cached locally)npx awal x402 pay <url> npx algopay x402 pay <url> MCP runtime → Intermezzo signs payment tx → GoPlausible facilitatorFund Wallet skill npx algopay fund Opens Pera Fund / Circle onramp or direct USDC deposit to ARC-58 addressAuthenticate Wallet skill npx algopay auth login ... + verify Same as aboveSend USDC skill npx algopay send ... Same as send commandTrade Tokens skill npx algopay trade ... Same as trade command (Vestige routing)Search for Service skill npx algopay x402 bazaar search ... Same as search commandPay for Service skill npx algopay x402 pay ... Same as pay commandMonetize Service skill npx algopay monetize <endpoint> One-command deploy of x402 paywall + ARC-58 pluginSpending Limits Built-in (via --limit or config) Stored in ARC-58 state + enforced by Intermezzo before signingKYT / Risk Screening Automatic in backend + Intermezzo Blocklist + future oracle integrationGasless Trading Automatic (Fee Pooling) Backend wallet pays all fees in atomic groupSecurity / Key Isolation Intermezzo (custodial API on HashiCorp Vault) Keys never leave Intermezzo enclave-like environment--json output on all commands npx
- algopay ... --json Supported on every commandAll commands
- support --json and --network testnet/mainne
-t.This is the final, production-grade version.You can now build and ship Alogopay with the exact same UX as AWAL, but on Algorand (faster, cheaper, fully open, with native fee pooling and dual x402+AP2 support).
+```
+User → `algopay auth login <email>`
+  → FastAPI Backend sends OTP via SendGrid/Resend/Mailgun
+  → User → `algopay auth verify <flowId> <otp>`
+  → Backend validates OTP
+  → Backend exchanges for Intermezzo OAuth2 session token
+  → Intermezzo creates/attaches wallet to session
+  → Session token stored in ~/.algopay/config.json
+```
 
+**Implementation:**
+- **OTP delivery:** SendGrid (free tier: 100 emails/day) or Resend
+- **OTP storage:** Redis with 10-minute TTL
+- **Session tokens:** JWT signed by backend, 30-day validity
+- **Flow IDs:** UUID v4, single-use
 
+### 2. Smart Wallet (ARC-58 is Draft)
 
+**Problem:** ARC-58 is still a DRAFT spec. No production-deployed reference contract exists as a standard.
 
-## 5. Security Boundaries (Critical for Agents)
+**Solution (Phased Approach):**
+
+**MVP (Hackathon):** Use a standard Algorand account managed by Intermezzo. Spending limits and guardrails are enforced in the FastAPI backend middleware (not on-chain). Fee pooling still works via Atomic Groups because that's a native Algorand feature — no smart contract needed.
+
+**V2 (Post-hackathon):** Build a PuyaPy smart wallet contract implementing ARC-58 draft features:
+- On-chain spending limits
+- Plugin registration (revenue split, escrow)
+- On-chain guardrail enforcement
+
+This phased approach means you have a **working product on day 1** without waiting for ARC-58 standardization.
+
+---
+
+## AWAL → Algopay Command Mapping
+
+| AWAL Command | Algopay Command | How It Works |
+|---|---|---|
+| `npx awal status` | `npx algopay status` | MCP queries Intermezzo + Indexer |
+| `npx awal auth login <email>` | `npx algopay auth login <email>` | FastAPI sends OTP via SendGrid → returns flowId |
+| `npx awal auth verify <flowId> <otp>` | `npx algopay auth verify <flowId> <otp>` | Validates OTP → Intermezzo session → wallet attached |
+| `npx awal balance` | `npx algopay balance` | Indexer query via MCP for ALGO + USDC + all ASAs |
+| `npx awal address` | `npx algopay address` | Returns wallet address from local config |
+| `npx awal show` | `npx algopay show` | Opens React dashboard (Vercel-hosted) |
+| `npx awal send <amt> <to>` | `npx algopay send <amt> <to>` | Backend builds atomic group → Intermezzo signs → gasless |
+| `npx awal trade <amt> <from> <to>` | `npx algopay trade <amt> <from> <to>` | Vestige MCP routing → DEX swap in atomic group → gasless |
+| `npx awal x402 bazaar search <q>` | `npx algopay x402 bazaar search <q>` | GoPlausible `/discovery/resources` API (cached 1hr) |
+| `npx awal x402 pay <url>` | `npx algopay x402 pay <url>` | Parse 402 header → Intermezzo signs → GoPlausible facilitator |
+| Fund Wallet | `npx algopay fund` | Pera Fund (Meld fiat + Exodus cross-chain) or direct USDC deposit |
+| Monetize Service | `npx algopay monetize <endpoint>` | **Algopay SDK:** x402 paywall middleware deployment (see below) |
+
+All commands support `--json` and `--network testnet|mainnet`.
+
+---
+
+## Monetize SDK (Key Differentiator vs AWAL)
+
+**The "1-line API monetization" feature.** This is the core value proposition for the hackathon.
+
+### Python SDK (FastAPI)
+```python
+from algopay import paywall
+
+@app.get("/api/air-quality")
+@paywall(price=0.25, asset="USDC")
+async def get_air_quality():
+    return {"pm25": 12.3, "aqi": 48, "location": "Mumbai"}
+```
+
+### TypeScript SDK (Express)
+```typescript
+import { paymentMiddleware } from "@algopay/x402";
+
+const payment = paymentMiddleware(PAY_TO_ADDRESS, {
+  "GET /api/data": { price: "$0.05", network: "algorand-mainnet" },
+  "POST /api/query": { price: "$0.25", network: "algorand-mainnet" }
+});
+
+app.get("/api/data", payment, (req, res) => { /* ... */ });
+```
+
+### How it works under the hood:
+1. Middleware intercepts incoming request
+2. Checks for `Authorization: x402 <tx-hash>` header
+3. If missing → returns HTTP 402 with `X-Payment: { price, asset, payTo, network, facilitator }`
+4. If present → validates tx on-chain via Indexer → allows request through
+5. GoPlausible Bazaar auto-indexes the endpoint for AI agent discovery
+
+### vs AWAL's `paymentMiddleware`:
+- AWAL requires `CDP_API_KEY_ID` + `CDP_API_KEY_SECRET` (centralized Coinbase dependency)
+- **Algopay uses on-chain verification via Algorand Indexer** (no proprietary API keys needed)
+- AWAL is locked to Base (Ethereum L2). Algopay is native Algorand (faster, cheaper)
+
+---
+
+## Security Boundaries (Critical for Agents)
 
 **NEVER** do these inside any agent/LLM context:
 - Generate or store private keys
 - Call raw `algosdk` signing functions
 - Bypass Intermezzo
+- Store OTP secrets in agent memory
 
 **Always** route through:
 ```python
-# Correct pattern
-response = await intermezzo_client.sign_transaction(unsigned_tx, context)
-Intermezzo is the only place keys exist.
+# Correct pattern — Backend calls Intermezzo
+response = await intermezzo_client.sign_transaction(unsigned_tx, session_context)
+# Intermezzo is the ONLY place keys exist
+```
 
+**Security layers (defense in depth):**
+1. **Agent layer:** No keys, no signing capability
+2. **CLI layer:** Session token only, stored `~/.algopay/config.json` (perms 600)
+3. **Backend layer:** Guardrails (spending limits + KYT) applied BEFORE calling Intermezzo
+4. **Intermezzo layer:** Keys in Vault, OAuth2 session required, audit log
+5. **On-chain layer:** Atomic groups ensure all-or-nothing execution
 
+---
 
-Production Runtime Stack (Must Know
+## Production Runtime Stack
 
-)Build time: VibeKit (npx vibekit init
-)Runtime: algorand-remote-mcp-lite (Wallet Edition
-)Signing: Self-hosted Intermezzo (Vault
-)Hosting: Backend on Render/Railway, Intermezzo in Docker
-8. External References (Always Check These First)
+| Component | Tool | Hosting |
+|---|---|---|
+| Build time | VibeKit (`npx vibekit init`) | Local |
+| CLI | TypeScript, published to npm | User's machine |
+| MCP Runtime | algorand-mcp + algorand-remote-mcp-lite | Co-located with CLI |
+| Backend | FastAPI (Python) | Render / Railway / AWS |
+| Signing | Intermezzo (Docker + Vault) | Self-hosted VPS or AWS |
+| Dashboard | React | Vercel |
+| Session store | Redis | Render Redis / AWS ElastiCache |
+| OTP delivery | SendGrid / Resend | SaaS |
 
-Official Intermezzo: https://github.com/algorandfoundation/intermezzo
-GoPlausible x402 + MCP: https://github.com/goplausible
-algorand-remote-mcp-lite: https://github.com/algorand-devrel/algorand-remote-mcp-lite
-Vestige MCP: https://github.com/vestige-fi/vestige-mcp
-ARC-58 Smart Wallet: Algorand Developer Retreat repo
-GitHub
-GitHub - algorandfoundation/intermezzo: Algorand Integration using Hashicorp Vault as a KMS. Supports both a REST API and CLI modes.
+---
 
-Algorand Integration using Hashicorp Vault as a KMS. Supports both a REST API and CLI modes. - GitHub - algorandfoundation/intermezzo: Algorand Integration using Hashico...
+## External References (Always Check These First)
 
+1. **Intermezzo:** https://github.com/algorandfoundation/intermezzo
+2. **GoPlausible x402 + MCP:** https://github.com/goplausible
+3. **GoPlausible API:** https://api.goplausible.xyz/docs
+4. **algorand-remote-mcp-lite:** https://github.com/algorand-devrel/algorand-remote-mcp-lite
+5. **Vestige MCP:** https://github.com/vestige-fi/vestige-mcp
+6. **OpenClaw Algorand Plugin:** npm `@goplausible/openclaw-algorand-plugin`
+7. **AlgoKit:** https://developer.algorand.org/docs/get-started/algokit/
+8. **x402 Protocol:** https://x402.org
+9. **AWAL (Inspiration):** https://docs.cdp.coinbase.com/agentic-wallet/skills/overview
+10. **Pera Fund:** https://perawallet.app
+11. **Circle USDC on Algorand:** https://developers.circle.com
