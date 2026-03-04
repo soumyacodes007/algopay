@@ -27,8 +27,18 @@
 | 10 | **Pera Fund** (fiat + cross-chain onramp) | ✅ Live | Launched Jan 2026, Meld fiat + Exodus cross-chain swaps | Link to Pera mobile app |
 | 11 | **Circle USDC APIs** | ✅ Live | Circle APIs for Algorand USDC since 2020 | REST API integration |
 | 12 | **VibeKit** (project scaffolding) | ✅ Live | Launched Feb 5, 2026 by Algorand DevRel, `npx vibekit init` | Use for project init |
-| 13 | **GoPlausible dOAuth (email OTP)** | ❌ No public endpoint | dOAuth protocol exists but no confirmed public `POST /auth/login` REST endpoint for email+OTP | **BUILD YOURSELF** (see Auth section below) |
+| 13 | **Auth Layer (Express/Hono)** | ✅ Done (Dev) | Implemented in `src/server/server.ts` with local OTP console logs. | **PROD LEFT:** SendGrid/Resend API, Redis for persistence. |
 | 14 | **ARC-58 Smart Wallet** | ⚠️ Draft | ARC-58 spec is DRAFT, not production-deployed as standard. Akita Wallet has a reference implementation | **BUILD YOURSELF** or use simplified version (see Smart Wallet section below) |
+
+---
+
+## Current Progress Status
+
+- **Phase 0: Project Scaffold** ✅ Complete (CLI, TS Config, All 7 connection tests passing)
+- **Phase 1: Auth Layer** ✅ Implementation Complete (Dev Mode)
+    - *Done:* POST `/auth/login`, `/auth/verify`, `/auth/logout`, `/auth/session`.
+    - *Done:* 12 Auth Tests passing.
+    - *Left for Prod:* Real Email delivery (SendGrid), Redis persistence, Intermezzo integration.
 
 ---
 

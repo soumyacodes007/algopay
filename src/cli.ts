@@ -2,6 +2,7 @@
 
 import { Command } from "commander";
 import { getConfig } from "./config.js";
+import * as authClient from "./auth/client.js";
 
 const program = new Command();
 
@@ -43,23 +44,60 @@ auth
     .command("login <email>")
     .description("Authenticate with email OTP")
     .action(async (email: string) => {
-        console.log(`TODO: Send OTP to ${email}`);
+        try {
+            const result = await authClient.login(email);
+            const opts = program.opts();
+            if (opts.json) {
+                console.log(JSON.stringify(result));
+            } else {
+                console.log(`\n✉️  OTP sent to ${email}`);
+                console.log(`   Flow ID: ${result.flowId}`);
+                console.log(`   Expires in: ${result.expiresIn}`);
+                console.log(`\n   Next: algopay auth verify ${result.flowId} <otp>\n`);
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     });
 
 auth
     .command("verify <flowId> <otp>")
     .description("Verify OTP code")
     .action(async (flowId: string, otp: string) => {
-        console.log(`TODO: Verify OTP ${otp} for flow ${flowId}`);
+        try {
+            const result = await authClient.verify(flowId, otp);
+            const opts = program.opts();
+            if (opts.json) {
+                console.log(JSON.stringify(result));
+            } else {
+                console.log(`\n✅ Authenticated!`);
+                console.log(`   Wallet: ${result.walletAddress}`);
+                console.log(`   Email:  ${result.email}`);
+                console.log(`   Session expires in: ${result.expiresIn}\n`);
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     });
 
 auth
     .command("logout")
     .description("Clear session token")
     .action(async () => {
-        const config = getConfig();
-        config.delete("sessionToken" as any);
-        console.log("Logged out successfully.");
+        try {
+            await authClient.logout();
+            const opts = program.opts();
+            if (opts.json) {
+                console.log(JSON.stringify({ message: "Logged out successfully." }));
+            } else {
+                console.log("Logged out successfully.");
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     });
 
 // --- Wallet commands ---
