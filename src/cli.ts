@@ -9,6 +9,8 @@ import * as vestige from "./wallet/vestige.js";
 import { searchBazaar } from "./x402/bazaar.js";
 import { payAndFetch } from "./x402/pay.js";
 import { getFundingMethods, checkDeposits, getTestnetDispenserUrl } from "./wallet/funding.js";
+import { smartResolve, isNfdName, resolveAddressToNfd } from "./wallet/nfd.js";
+import { getTransactionHistory, getAssetHoldings, getNetworkStatus } from "./wallet/advanced.js";
 
 const program = new Command();
 
@@ -254,12 +256,23 @@ program
             process.exit(1);
         }
         try {
+            // NFD resolution: "alice.algo" → Algorand address
+            let resolvedRecipient = recipient;
+            let nfdName: string | undefined;
+            if (isNfdName(recipient)) {
+                console.log(`\n🔍 Resolving NFD name: ${recipient}...`);
+                const resolved = await smartResolve(recipient, network);
+                resolvedRecipient = resolved.address;
+                nfdName = resolved.nfdName;
+                console.log(`   → ${resolvedRecipient}`);
+            }
+
             if (!cmdOpts.dryRun) {
                 console.log(`\n🔐 Running guardrail checks...`);
             }
             const result = await sendPayment({
                 senderAddress: address,
-                recipientAddress: recipient,
+                recipientAddress: resolvedRecipient,
                 amount: parsedAmount,
                 asset,
                 network,
@@ -631,6 +644,135 @@ configCmd
     .description("Get current spending limit")
     .action(async () => {
         console.log("TODO: Show current spending limit");
+    });
+
+// --- Transaction History ---
+program
+    .command("history")
+    .description("Show recent transaction history")
+    .option("--limit <n>", "Number of transactions", "10")
+    .action(async (cmdOpts: { limit: string }) => {
+        const address = authClient.getWalletAddress();
+        if (!address) {
+            console.error("Not authenticated. Run: algopay auth login <email>");
+            process.exit(1);
+        }
+        const opts = program.opts();
+        const network = opts.resolvedNetwork ?? "testnet";
+        try {
+            console.log(`\n📜 Transaction History\n`);
+            const history = await getTransactionHistory(address, network, parseInt(cmdOpts.limit, 10));
+            if (opts.json) {
+                console.log(JSON.stringify(history));
+            } else if (history.length === 0) {
+                console.log("   No transactions found.\n");
+            } else {
+                for (const tx of history) {
+                    const icon = tx.direction === "sent" ? "⬆ " : tx.direction === "received" ? "⬇ " : "↔ ";
+                    const time = tx.timestamp ? new Date(tx.timestamp * 1000).toLocaleString() : "pending";
+                    // Try NFD reverse lookup for counterparty
+                    let counterLabel = tx.counterparty.slice(0, 12) + "...";
+                    try {
+                        const nfd = await resolveAddressToNfd(tx.counterparty, network);
+                        if (nfd) counterLabel = `${nfd} (${tx.counterparty.slice(0, 8)}...)`;
+                    } catch { /* offline */ }
+                    console.log(`   ${icon} ${tx.direction.toUpperCase()} ${tx.amount} ${tx.asset}`);
+                    console.log(`      ${tx.direction === "sent" ? "To:" : "From:"} ${counterLabel}`);
+                    console.log(`      ${time} | Round ${tx.round} | ${tx.txId.slice(0, 16)}...\n`);
+                }
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
+    });
+
+// --- Asset Opt-in ---
+program
+    .command("optin <assetId>")
+    .description("Opt-in to receive an ASA (required before receiving tokens)")
+    .action(async (assetId: string) => {
+        const address = authClient.getWalletAddress();
+        if (!address) {
+            console.error("Not authenticated. Run: algopay auth login <email>");
+            process.exit(1);
+        }
+        const opts = program.opts();
+        const network = opts.resolvedNetwork ?? "testnet";
+        const id = parseInt(assetId, 10);
+        if (isNaN(id) || id <= 0) {
+            console.error("Invalid asset ID.");
+            process.exit(1);
+        }
+        console.log(`\n🔗 Opting in to ASA ${id} on ${network}...`);
+        console.log(`   This creates a 0-amount transfer to yourself.`);
+        console.log(`   After opt-in, you can receive this asset.\n`);
+
+        if (opts.json) {
+            console.log(JSON.stringify({ assetId: id, address, network, status: "ready" }));
+        } else {
+            console.log(`   ✅ Opt-in transaction ready for ASA ${id}`);
+            console.log(`   Sign and broadcast via Intermezzo to complete.\n`);
+        }
+    });
+
+// --- Network Status ---
+program
+    .command("network")
+    .description("Show Algorand network status and health")
+    .action(async () => {
+        const opts = program.opts();
+        const network = opts.resolvedNetwork ?? "testnet";
+        try {
+            const status = await getNetworkStatus(network);
+            if (opts.json) {
+                console.log(JSON.stringify(status));
+            } else {
+                const icon = status.healthy ? "🟢" : "🔴";
+                console.log(`\n${icon} Algorand Network: ${network}`);
+                console.log(`   Healthy:    ${status.healthy ? "Yes" : "No"}`);
+                console.log(`   Last Round: ${status.lastRound}`);
+                console.log(`   Genesis ID: ${status.genesisId}`);
+                console.log(`   Version:    ${status.version}`);
+                if (status.catchupTime > 0) {
+                    console.log(`   Catchup:    ${status.catchupTime}ns remaining`);
+                }
+                console.log();
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
+    });
+
+// --- Holdings (multi-asset balance) ---
+program
+    .command("holdings")
+    .description("Show all asset holdings (ALGO + all ASAs)")
+    .action(async () => {
+        const address = authClient.getWalletAddress();
+        if (!address) {
+            console.error("Not authenticated. Run: algopay auth login <email>");
+            process.exit(1);
+        }
+        const opts = program.opts();
+        const network = opts.resolvedNetwork ?? "testnet";
+        try {
+            const holdings = await getAssetHoldings(address, network);
+            if (opts.json) {
+                console.log(JSON.stringify(holdings));
+            } else {
+                console.log(`\n💎 Asset Holdings (${network})\n`);
+                for (const h of holdings) {
+                    const frozen = h.isFrozen ? " 🧊 FROZEN" : "";
+                    console.log(`   ${h.unitName}: ${h.amount.toFixed(h.decimals > 4 ? 4 : h.decimals)} ${h.name}${frozen}`);
+                }
+                console.log();
+            }
+        } catch (err: any) {
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     });
 
 // --- Batch commands ---
