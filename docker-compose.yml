@@ -1,0 +1,21 @@
+# Algopay Local Development Stack
+# Usage: docker compose up -d
+# Services: Redis (session/OTP store)
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: algopay-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  redis-data:
