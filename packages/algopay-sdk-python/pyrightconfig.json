@@ -3,5 +3,6 @@
     "typeCheckingMode": "basic",
     "reportMissingImports": "none",
     "reportMissingModuleSource": "none",
-    "ignore": ["**/__pycache__"]
+    "ignore": ["**/__pycache__"],
+    "extraPaths": ["."]
 }
