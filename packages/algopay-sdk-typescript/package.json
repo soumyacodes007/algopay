@@ -13,8 +13,8 @@
     },
     "files": ["dist", "README.md", "LICENSE"],
     "scripts": {
-        "build": "tsc && node scripts/build-cjs.mjs",
-        "dev": "tsc --watch",
+        "build": "tsc -p tsconfig.build.json",
+        "dev": "tsc -p tsconfig.build.json --watch",
         "test": "vitest run",
         "test:watch": "vitest",
         "prepublishOnly": "npm run build && npm test"

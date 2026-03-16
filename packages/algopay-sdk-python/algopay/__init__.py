@@ -1,15 +1,17 @@
 """
 Algopay Python SDK
 ==================
-Drop-in payment decorator for FastAPI/Flask endpoints.
+Drop-in x402 payment decorator for FastAPI/Flask endpoints on Algorand.
 
 Usage:
     from algopay import paywall
 
     @app.get("/api/data")
-    @paywall(price=0.05, asset="USDC")
-    async def my_endpoint():
+    @paywall(price=0.05, pay_to="YOUR_ALGORAND_ADDRESS")
+    async def my_endpoint(request: Request):
         return {"data": "paid content"}
+
+Set ALGOPAY_WALLET_ADDRESS env var to avoid passing pay_to every time.
 """
 
 from .paywall import paywall, PaywallConfig, AlgopayVerificationError
