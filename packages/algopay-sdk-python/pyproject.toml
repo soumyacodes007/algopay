@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "algopay"
+version = "0.1.0"
+description = "Stripe for AI Agents — x402 payment decorator for FastAPI/Flask on Algorand"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "soumyacodes007" }]
+requires-python = ">=3.10"
+keywords = ["algorand", "x402", "payments", "fastapi", "flask", "agentic", "web3"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+# Core has zero required deps (uses only stdlib: urllib, json, base64, threading)
+dependencies = []
+
+[project.optional-dependencies]
+# For async FastAPI endpoints (recommended)
+fastapi = ["aiohttp>=3.9", "starlette>=0.27"]
+# For Flask endpoints
+flask = ["flask>=2.3"]
+# Install everything
+all = ["aiohttp>=3.9", "starlette>=0.27", "flask>=2.3"]
+
+[project.urls]
+Homepage = "https://github.com/soumyacodes007/algopay"
+Repository = "https://github.com/soumyacodes007/algopay"
+Documentation = "https://github.com/soumyacodes007/algopay#readme"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algopay*"]

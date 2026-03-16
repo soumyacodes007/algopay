@@ -1,0 +1,62 @@
+{
+    "name": "@algopay/x402",
+    "version": "0.1.0",
+    "description": "Express/Hono paymentMiddleware — x402 API monetization on Algorand (Stripe for AI Agents)",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": ["dist", "README.md", "LICENSE"],
+    "scripts": {
+        "build": "tsc && node scripts/build-cjs.mjs",
+        "dev": "tsc --watch",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "prepublishOnly": "npm run build && npm test"
+    },
+    "keywords": [
+        "algorand",
+        "x402",
+        "payments",
+        "express",
+        "middleware",
+        "agentic",
+        "usdc",
+        "paywall",
+        "web3"
+    ],
+    "author": "soumyacodes007",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/soumyacodes007/algopay.git",
+        "directory": "packages/algopay-sdk-typescript"
+    },
+    "homepage": "https://github.com/soumyacodes007/algopay#readme",
+    "peerDependencies": {
+        "express": ">=4.18 || >=5.0"
+    },
+    "peerDependenciesMeta": {
+        "express": {
+            "optional": true
+        }
+    },
+    "dependencies": {
+        "algosdk": "^3.2.0"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.0.0",
+        "express": "^5.2.1",
+        "typescript": "^5.8.0",
+        "vitest": "^3.1.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
