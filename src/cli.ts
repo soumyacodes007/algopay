@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import "dotenv/config";
 import { Command } from "commander";
 import { getConfig } from "./config.js";
 import * as authClient from "./auth/client.js";
@@ -411,8 +412,8 @@ bazaar
         }
     });
 
-x402
-    .command("bazaar register <serviceUrl>")
+bazaar
+    .command("register <serviceUrl>")
     .description("Register your x402 API endpoint with GoPlausible Bazaar")
     .requiredOption("--name <name>", "Service name shown in Bazaar")
     .requiredOption("--price <usdc>", "Price per request in USDC (e.g. 0.05)")

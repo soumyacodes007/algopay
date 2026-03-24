@@ -1,4 +1,4 @@
-# Algopay — Bulletproof Architecture (Validated March 2026)
+# dont make md files 
 
 > Agentic payment wallet for Algorand. The "Stripe for AI Agents" on Algorand.
 > Inspired by [Coinbase AWAL](https://docs.cdp.coinbase.com/agentic-wallet/skills/overview).

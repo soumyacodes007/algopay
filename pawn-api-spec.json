@@ -1,0 +1,1134 @@
+﻿{
+    "openapi":  "3.0.0",
+    "paths":  {
+                  "/v1/auth/sign-in":  {
+                                           "post":  {
+                                                        "description":  "Endpoint to sign in with a `vault_token`",
+                                                        "operationId":  "Auth_signIn",
+                                                        "parameters":  [
+
+                                                                       ],
+                                                        "requestBody":  {
+                                                                            "required":  true,
+                                                                            "content":  {
+                                                                                            "application/json":  {
+                                                                                                                     "schema":  {
+                                                                                                                                    "$ref":  "#/components/schemas/SignInRequestDto"
+                                                                                                                                }
+                                                                                                                 }
+                                                                                        }
+                                                                        },
+                                                        "responses":  {
+                                                                          "201":  {
+                                                                                      "description":  "The access token has been successfully created.",
+                                                                                      "content":  {
+                                                                                                      "application/json":  {
+                                                                                                                               "schema":  {
+                                                                                                                                              "$ref":  "#/components/schemas/SignInResponseDto"
+                                                                                                                                          }
+                                                                                                                           }
+                                                                                                  }
+                                                                                  },
+                                                                          "401":  {
+                                                                                      "description":  "Unauthorized"
+                                                                                  }
+                                                                      },
+                                                        "summary":  "Sign In",
+                                                        "tags":  [
+                                                                     "Auth"
+                                                                 ]
+                                                    }
+                                       },
+                  "/v1/wallet/users/{user_id}":  {
+                                                     "get":  {
+                                                                 "description":  "Endpoint to get user details by User ID",
+                                                                 "operationId":  "Wallet_userDetail",
+                                                                 "parameters":  [
+                                                                                    {
+                                                                                        "name":  "user_id",
+                                                                                        "required":  true,
+                                                                                        "in":  "path",
+                                                                                        "schema":  {
+                                                                                                       "type":  "string"
+                                                                                                   }
+                                                                                    }
+                                                                                ],
+                                                                 "responses":  {
+                                                                                   "200":  {
+                                                                                               "description":  "",
+                                                                                               "content":  {
+                                                                                                               "application/json":  {
+                                                                                                                                        "schema":  {
+                                                                                                                                                       "$ref":  "#/components/schemas/UserInfoResponseDto"
+                                                                                                                                                   }
+                                                                                                                                    }
+                                                                                                           }
+                                                                                           },
+                                                                                   "201":  {
+                                                                                               "description":  "The access token has been successfully created.",
+                                                                                               "content":  {
+                                                                                                               "application/json":  {
+                                                                                                                                        "schema":  {
+                                                                                                                                                       "$ref":  "#/components/schemas/UserInfoResponseDto"
+                                                                                                                                                   }
+                                                                                                                                    }
+                                                                                                           }
+                                                                                           },
+                                                                                   "401":  {
+                                                                                               "description":  "Unauthorized"
+                                                                                           }
+                                                                               },
+                                                                 "security":  [
+                                                                                  {
+                                                                                      "bearer":  [
+
+                                                                                                 ]
+                                                                                  }
+                                                                              ],
+                                                                 "summary":  "Get User by ID",
+                                                                 "tags":  [
+                                                                              "Wallet"
+                                                                          ]
+                                                             }
+                                                 },
+                  "/v1/wallet/manager":  {
+                                             "get":  {
+                                                         "description":  "Endpoint to get manager details, including the **Algorand** `public_address` of the **Manager**",
+                                                         "operationId":  "Wallet_managersDetail",
+                                                         "parameters":  [
+
+                                                                        ],
+                                                         "responses":  {
+                                                                           "200":  {
+                                                                                       "description":  "The details of the manager",
+                                                                                       "content":  {
+                                                                                                       "application/json":  {
+                                                                                                                                "schema":  {
+                                                                                                                                               "$ref":  "#/components/schemas/ManagerDetailDto"
+                                                                                                                                           }
+                                                                                                                            }
+                                                                                                   }
+                                                                                   },
+                                                                           "401":  {
+                                                                                       "description":  "Unauthorized"
+                                                                                   }
+                                                                       },
+                                                         "security":  [
+                                                                          {
+                                                                              "bearer":  [
+
+                                                                                         ]
+                                                                          }
+                                                                      ],
+                                                         "summary":  "Get Wallet Manager",
+                                                         "tags":  [
+                                                                      "Wallet"
+                                                                  ]
+                                                     }
+                                         },
+                  "/v1/wallet/assets/{user_id}":  {
+                                                      "get":  {
+                                                                  "description":  "Fetch the account asset holdings for a user by their user ID. The response includes the **Algorand** `public_address` of the user and the list of assets held by the user.",
+                                                                  "operationId":  "Wallet_assetsBalances",
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "name":  "user_id",
+                                                                                         "required":  true,
+                                                                                         "in":  "path",
+                                                                                         "schema":  {
+                                                                                                        "type":  "string"
+                                                                                                    }
+                                                                                     }
+                                                                                 ],
+                                                                  "responses":  {
+                                                                                    "200":  {
+                                                                                                "description":  "The asset balance has been successfully fetched.",
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/AccountAssetsDto"
+                                                                                                                                                    }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            },
+                                                                                    "400":  {
+                                                                                                "description":  "Bad Request"
+                                                                                            },
+                                                                                    "401":  {
+                                                                                                "description":  "Unauthorized"
+                                                                                            },
+                                                                                    "404":  {
+                                                                                                "description":  "Not Found"
+                                                                                            }
+                                                                                },
+                                                                  "security":  [
+                                                                                   {
+                                                                                       "bearer":  [
+
+                                                                                                  ]
+                                                                                   }
+                                                                               ],
+                                                                  "summary":  "Get Account Asset Holdings",
+                                                                  "tags":  [
+                                                                               "Wallet"
+                                                                           ]
+                                                              }
+                                                  },
+                  "/v1/wallet/user":  {
+                                          "post":  {
+                                                       "description":  "Create a new **User** in the wallet. The `user_id` is the unique identifier for the user.The response includes the **Algorand** `public_address` of the user.",
+                                                       "operationId":  "Wallet_userCreate",
+                                                       "parameters":  [
+
+                                                                      ],
+                                                       "requestBody":  {
+                                                                           "required":  true,
+                                                                           "content":  {
+                                                                                           "application/json":  {
+                                                                                                                    "schema":  {
+                                                                                                                                   "$ref":  "#/components/schemas/CreateUserDto"
+                                                                                                                               }
+                                                                                                                }
+                                                                                       }
+                                                                       },
+                                                       "responses":  {
+                                                                         "201":  {
+                                                                                     "description":  "A new user has been created.",
+                                                                                     "content":  {
+                                                                                                     "application/json":  {
+                                                                                                                              "schema":  {
+                                                                                                                                             "$ref":  "#/components/schemas/UserInfoResponseDto"
+                                                                                                                                         }
+                                                                                                                          }
+                                                                                                 }
+                                                                                 },
+                                                                         "400":  {
+                                                                                     "description":  "Bad Request"
+                                                                                 },
+                                                                         "401":  {
+                                                                                     "description":  "Unauthorized"
+                                                                                 }
+                                                                     },
+                                                       "security":  [
+                                                                        {
+                                                                            "bearer":  [
+
+                                                                                       ]
+                                                                        }
+                                                                    ],
+                                                       "summary":  "Create User",
+                                                       "tags":  [
+                                                                    "Wallet"
+                                                                ]
+                                                   }
+                                      },
+                  "/v1/wallet/users":  {
+                                           "get":  {
+                                                       "description":  "Fetch the list of **Users** in the wallet.",
+                                                       "operationId":  "Wallet_userList",
+                                                       "parameters":  [
+
+                                                                      ],
+                                                       "responses":  {
+                                                                         "200":  {
+                                                                                     "description":  "",
+                                                                                     "content":  {
+                                                                                                     "application/json":  {
+                                                                                                                              "schema":  {
+                                                                                                                                             "type":  "array",
+                                                                                                                                             "items":  {
+                                                                                                                                                           "$ref":  "#/components/schemas/UserInfoResponseDto"
+                                                                                                                                                       }
+                                                                                                                                         }
+                                                                                                                          }
+                                                                                                 }
+                                                                                 },
+                                                                         "401":  {
+                                                                                     "description":  "Unauthorized"
+                                                                                 }
+                                                                     },
+                                                       "security":  [
+                                                                        {
+                                                                            "bearer":  [
+
+                                                                                       ]
+                                                                        }
+                                                                    ],
+                                                       "summary":  "Get Users",
+                                                       "tags":  [
+                                                                    "Wallet"
+                                                                ]
+                                                   }
+                                       },
+                  "/v1/wallet/transactions/create-asset":  {
+                                                               "post":  {
+                                                                            "description":  "Create a new **Algorand** `Asset`.",
+                                                                            "operationId":  "Wallet_createAsset",
+                                                                            "parameters":  [
+
+                                                                                           ],
+                                                                            "requestBody":  {
+                                                                                                "required":  true,
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/CreateAssetDto"
+                                                                                                                                                    }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            },
+                                                                            "responses":  {
+                                                                                              "201":  {
+                                                                                                          "description":  "The asset has been successfully created.",
+                                                                                                          "content":  {
+                                                                                                                          "application/json":  {
+                                                                                                                                                   "schema":  {
+                                                                                                                                                                  "$ref":  "#/components/schemas/CreateAssetResponseDto"
+                                                                                                                                                              }
+                                                                                                                                               }
+                                                                                                                      }
+                                                                                                      },
+                                                                                              "400":  {
+                                                                                                          "description":  "Bad Request"
+                                                                                                      },
+                                                                                              "401":  {
+                                                                                                          "description":  "Unauthorized"
+                                                                                                      }
+                                                                                          },
+                                                                            "security":  [
+                                                                                             {
+                                                                                                 "bearer":  [
+
+                                                                                                            ]
+                                                                                             }
+                                                                                         ],
+                                                                            "summary":  "Create Asset",
+                                                                            "tags":  [
+                                                                                         "Wallet"
+                                                                                     ]
+                                                                        }
+                                                           },
+                  "/v1/wallet/transactions/transfer-asset":  {
+                                                                 "post":  {
+                                                                              "description":  "Send an **Algorand** `Asset` from the **Manager** to a **User**.",
+                                                                              "operationId":  "Wallet_assetTransferTx",
+                                                                              "parameters":  [
+
+                                                                                             ],
+                                                                              "requestBody":  {
+                                                                                                  "required":  true,
+                                                                                                  "content":  {
+                                                                                                                  "application/json":  {
+                                                                                                                                           "schema":  {
+                                                                                                                                                          "$ref":  "#/components/schemas/AssetTransferRequestDto"
+                                                                                                                                                      }
+                                                                                                                                       }
+                                                                                                              }
+                                                                                              },
+                                                                              "responses":  {
+                                                                                                "201":  {
+                                                                                                            "description":  "The asset has been successfully transferred.",
+                                                                                                            "content":  {
+                                                                                                                            "application/json":  {
+                                                                                                                                                     "schema":  {
+                                                                                                                                                                    "$ref":  "#/components/schemas/AssetTransferResponseDto"
+                                                                                                                                                                }
+                                                                                                                                                 }
+                                                                                                                        }
+                                                                                                        },
+                                                                                                "400":  {
+                                                                                                            "description":  "Bad Request"
+                                                                                                        },
+                                                                                                "401":  {
+                                                                                                            "description":  "Unauthorized"
+                                                                                                        },
+                                                                                                "404":  {
+                                                                                                            "description":  "Not Found"
+                                                                                                        }
+                                                                                            },
+                                                                              "security":  [
+                                                                                               {
+                                                                                                   "bearer":  [
+
+                                                                                                              ]
+                                                                                               }
+                                                                                           ],
+                                                                              "summary":  "Transfer Asset",
+                                                                              "tags":  [
+                                                                                           "Wallet"
+                                                                                       ]
+                                                                          }
+                                                             },
+                  "/v1/wallet/transactions/transfer-algo":  {
+                                                                "post":  {
+                                                                             "description":  "Send **Algorand** `Algos` to another account. The sender can be either the **Manager** or a **User**.",
+                                                                             "operationId":  "Wallet_algoTransferTx",
+                                                                             "parameters":  [
+
+                                                                                            ],
+                                                                             "requestBody":  {
+                                                                                                 "required":  true,
+                                                                                                 "content":  {
+                                                                                                                 "application/json":  {
+                                                                                                                                          "schema":  {
+                                                                                                                                                         "$ref":  "#/components/schemas/AlgoTransferRequestDto"
+                                                                                                                                                     }
+                                                                                                                                      }
+                                                                                                             }
+                                                                                             },
+                                                                             "responses":  {
+                                                                                               "201":  {
+                                                                                                           "description":  "The Algos have been successfully transferred.",
+                                                                                                           "content":  {
+                                                                                                                           "application/json":  {
+                                                                                                                                                    "schema":  {
+                                                                                                                                                                   "$ref":  "#/components/schemas/AlgoTransferResponseDto"
+                                                                                                                                                               }
+                                                                                                                                                }
+                                                                                                                       }
+                                                                                                       },
+                                                                                               "400":  {
+                                                                                                           "description":  "Bad Request"
+                                                                                                       },
+                                                                                               "401":  {
+                                                                                                           "description":  "Unauthorized"
+                                                                                                       },
+                                                                                               "404":  {
+                                                                                                           "description":  "Not Found"
+                                                                                                       }
+                                                                                           },
+                                                                             "security":  [
+                                                                                              {
+                                                                                                  "bearer":  [
+
+                                                                                                             ]
+                                                                                              }
+                                                                                          ],
+                                                                             "summary":  "Transfer Algo",
+                                                                             "tags":  [
+                                                                                          "Wallet"
+                                                                                      ]
+                                                                         }
+                                                            },
+                  "/v1/wallet/transactions/clawback-asset":  {
+                                                                 "post":  {
+                                                                              "description":  "Clawback an **Algorand** `Asset` from a **User** to the **Manager**. The `Asset` must have been created with the manager as the clawback address.",
+                                                                              "operationId":  "Wallet_assetClawbackTx",
+                                                                              "parameters":  [
+
+                                                                                             ],
+                                                                              "requestBody":  {
+                                                                                                  "required":  true,
+                                                                                                  "content":  {
+                                                                                                                  "application/json":  {
+                                                                                                                                           "schema":  {
+                                                                                                                                                          "$ref":  "#/components/schemas/AssetClawbackRequestDto"
+                                                                                                                                                      }
+                                                                                                                                       }
+                                                                                                              }
+                                                                                              },
+                                                                              "responses":  {
+                                                                                                "201":  {
+                                                                                                            "description":  "The asset has been successfully clawed back.",
+                                                                                                            "content":  {
+                                                                                                                            "application/json":  {
+                                                                                                                                                     "schema":  {
+                                                                                                                                                                    "$ref":  "#/components/schemas/AssetTransferResponseDto"
+                                                                                                                                                                }
+                                                                                                                                                 }
+                                                                                                                        }
+                                                                                                        },
+                                                                                                "400":  {
+                                                                                                            "description":  "Bad Request"
+                                                                                                        },
+                                                                                                "401":  {
+                                                                                                            "description":  "Unauthorized"
+                                                                                                        },
+                                                                                                "404":  {
+                                                                                                            "description":  "Not Found"
+                                                                                                        }
+                                                                                            },
+                                                                              "security":  [
+                                                                                               {
+                                                                                                   "bearer":  [
+
+                                                                                                              ]
+                                                                                               }
+                                                                                           ],
+                                                                              "summary":  "Clawback Asset",
+                                                                              "tags":  [
+                                                                                           "Wallet"
+                                                                                       ]
+                                                                          }
+                                                             },
+                  "/v1/wallet/transactions/app-call":  {
+                                                           "post":  {
+                                                                        "description":  "Application call",
+                                                                        "operationId":  "Wallet_appCallTx",
+                                                                        "parameters":  [
+
+                                                                                       ],
+                                                                        "requestBody":  {
+                                                                                            "required":  true,
+                                                                                            "content":  {
+                                                                                                            "application/json":  {
+                                                                                                                                     "schema":  {
+                                                                                                                                                    "$ref":  "#/components/schemas/AppCallRequestDto"
+                                                                                                                                                }
+                                                                                                                                 }
+                                                                                                        }
+                                                                                        },
+                                                                        "responses":  {
+                                                                                          "201":  {
+                                                                                                      "description":  "The app call has been successfully completed.",
+                                                                                                      "content":  {
+                                                                                                                      "application/json":  {
+                                                                                                                                               "schema":  {
+                                                                                                                                                              "$ref":  "#/components/schemas/AppCallResponseDto"
+                                                                                                                                                          }
+                                                                                                                                           }
+                                                                                                                  }
+                                                                                                  },
+                                                                                          "400":  {
+                                                                                                      "description":  "Bad Request"
+                                                                                                  },
+                                                                                          "401":  {
+                                                                                                      "description":  "Unauthorized"
+                                                                                                  },
+                                                                                          "404":  {
+                                                                                                      "description":  "Not Found"
+                                                                                                  }
+                                                                                      },
+                                                                        "security":  [
+                                                                                         {
+                                                                                             "bearer":  [
+
+                                                                                                        ]
+                                                                                         }
+                                                                                     ],
+                                                                        "summary":  "App Call",
+                                                                        "tags":  [
+                                                                                     "Wallet"
+                                                                                 ]
+                                                                    }
+                                                       },
+                  "/v1/wallet/transactions/group-transaction":  {
+                                                                    "post":  {
+                                                                                 "description":  "Group Transaction",
+                                                                                 "operationId":  "Wallet_groupTx",
+                                                                                 "parameters":  [
+
+                                                                                                ],
+                                                                                 "requestBody":  {
+                                                                                                     "required":  true,
+                                                                                                     "content":  {
+                                                                                                                     "application/json":  {
+                                                                                                                                              "schema":  {
+                                                                                                                                                             "$ref":  "#/components/schemas/GroupRequestDto"
+                                                                                                                                                         }
+                                                                                                                                          }
+                                                                                                                 }
+                                                                                                 },
+                                                                                 "responses":  {
+                                                                                                   "201":  {
+                                                                                                               "description":  "The group transaction has been successfully completed.",
+                                                                                                               "content":  {
+                                                                                                                               "application/json":  {
+                                                                                                                                                        "schema":  {
+                                                                                                                                                                       "$ref":  "#/components/schemas/GroupResponseDto"
+                                                                                                                                                                   }
+                                                                                                                                                    }
+                                                                                                                           }
+                                                                                                           },
+                                                                                                   "400":  {
+                                                                                                               "description":  "Bad Request"
+                                                                                                           },
+                                                                                                   "401":  {
+                                                                                                               "description":  "Unauthorized"
+                                                                                                           },
+                                                                                                   "404":  {
+                                                                                                               "description":  "Not Found"
+                                                                                                           }
+                                                                                               },
+                                                                                 "security":  [
+                                                                                                  {
+                                                                                                      "bearer":  [
+
+                                                                                                                 ]
+                                                                                                  }
+                                                                                              ],
+                                                                                 "summary":  "Group Transaction",
+                                                                                 "tags":  [
+                                                                                              "Wallet"
+                                                                                          ]
+                                                                             }
+                                                                }
+              },
+    "info":  {
+                 "title":  "Pawn API",
+                 "description":  "",
+                 "version":  "v1",
+                 "contact":  {
+
+                             }
+             },
+    "tags":  [
+
+             ],
+    "servers":  [
+
+                ],
+    "components":  {
+                       "securitySchemes":  {
+                                               "bearer":  {
+                                                              "scheme":  "bearer",
+                                                              "bearerFormat":  "JWT",
+                                                              "description":  "(JWT) generated by the /v1/auth/sign-in endpoint",
+                                                              "type":  "http"
+                                                          }
+                                           },
+                       "schemas":  {
+                                       "SignInRequestDto":  {
+                                                                "type":  "object",
+                                                                "properties":  {
+                                                                                   "vault_token":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "hvb.AAAAAQJ5tcbZ2....",
+                                                                                                       "description":  "A vault token produced by the hashicorp service"
+                                                                                                   }
+                                                                               },
+                                                                "required":  [
+                                                                                 "vault_token"
+                                                                             ]
+                                                            },
+                                       "SignInResponseDto":  {
+                                                                 "type":  "object",
+                                                                 "properties":  {
+                                                                                    "access_token":  {
+                                                                                                         "type":  "string",
+                                                                                                         "example":  "eyJhbG....",
+                                                                                                         "description":  "A JSON Web Token (JWT) that enables secure access to protected resources. This token includes encoded user information and is signed to ensure integrity."
+                                                                                                     }
+                                                                                },
+                                                                 "required":  [
+                                                                                  "access_token"
+                                                                              ]
+                                                             },
+                                       "UserInfoResponseDto":  {
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "user_id":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "1234",
+                                                                                                      "description":  "The unique identifier of the User"
+                                                                                                  },
+                                                                                      "public_address":  {
+                                                                                                             "type":  "string",
+                                                                                                             "example":  "I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU",
+                                                                                                             "description":  "The public address of the User"
+                                                                                                         },
+                                                                                      "algoBalance":  {
+                                                                                                          "type":  "string",
+                                                                                                          "example":  "1000000",
+                                                                                                          "description":  "The balance of Algorand held by the User in microAlgos"
+                                                                                                      }
+                                                                                  },
+                                                                   "required":  [
+                                                                                    "user_id",
+                                                                                    "public_address",
+                                                                                    "algoBalance"
+                                                                                ]
+                                                               },
+                                       "ManagerDetailDto":  {
+                                                                "type":  "object",
+                                                                "properties":  {
+                                                                                   "public_address":  {
+                                                                                                          "type":  "string",
+                                                                                                          "example":  "I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU",
+                                                                                                          "description":  "The public address of the manager"
+                                                                                                      },
+                                                                                   "assets":  {
+                                                                                                  "type":  "array",
+                                                                                                  "items":  {
+                                                                                                                "type":  "object",
+                                                                                                                "properties":  {
+                                                                                                                                   "asset_id":  {
+                                                                                                                                                    "type":  "string",
+                                                                                                                                                    "example":  "123456789",
+                                                                                                                                                    "description":  "The unique identifier of the asset"
+                                                                                                                                                },
+                                                                                                                                   "asset_name":  {
+                                                                                                                                                      "type":  "string",
+                                                                                                                                                      "example":  "Gold",
+                                                                                                                                                      "description":  "The name of the asset"
+                                                                                                                                                  },
+                                                                                                                                   "asset_amount":  {
+                                                                                                                                                        "type":  "number",
+                                                                                                                                                        "example":  1000,
+                                                                                                                                                        "description":  "The amount of the asset held by the manager"
+                                                                                                                                                    }
+                                                                                                                               }
+                                                                                                            },
+                                                                                                  "description":  "List of assets held by the manager"
+                                                                                              },
+                                                                                   "algoBalance":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "1000000",
+                                                                                                       "description":  "The balance of Algorand held by the manager in microAlgos"
+                                                                                                   }
+                                                                               },
+                                                                "required":  [
+                                                                                 "assets"
+                                                                             ]
+                                                            },
+                                       "AccountAssetsDto":  {
+                                                                "type":  "object",
+                                                                "properties":  {
+                                                                                   "address":  {
+                                                                                                   "type":  "string"
+                                                                                               },
+                                                                                   "assets":  {
+                                                                                                  "type":  "array",
+                                                                                                  "items":  {
+                                                                                                                "type":  "object"
+                                                                                                            }
+                                                                                              }
+                                                                               },
+                                                                "required":  [
+                                                                                 "address",
+                                                                                 "assets"
+                                                                             ]
+                                                            },
+                                       "CreateUserDto":  {
+                                                             "type":  "object",
+                                                             "properties":  {
+                                                                                "user_id":  {
+                                                                                                "type":  "string",
+                                                                                                "example":  "1234",
+                                                                                                "description":  "The unique identifier of the User"
+                                                                                            }
+                                                                            },
+                                                             "required":  [
+                                                                              "user_id"
+                                                                          ]
+                                                         },
+                                       "CreateAssetDto":  {
+                                                              "type":  "object",
+                                                              "properties":  {
+                                                                                 "total":  {
+                                                                                               "type":  "number",
+                                                                                               "example":  31415,
+                                                                                               "description":  "The total supply of the Asset"
+                                                                                           },
+                                                                                 "decimals":  {
+                                                                                                  "format":  "int64",
+                                                                                                  "type":  "integer",
+                                                                                                  "example":  2,
+                                                                                                  "description":  "The number of decimal places for the Asset"
+                                                                                              },
+                                                                                 "defaultFrozen":  {
+                                                                                                       "type":  "boolean",
+                                                                                                       "example":  false,
+                                                                                                       "description":  "Indicates if the Asset is frozen by default"
+                                                                                                   },
+                                                                                 "unitName":  {
+                                                                                                  "type":  "string",
+                                                                                                  "example":  "Test",
+                                                                                                  "description":  "The Unit name of the Asset (ie TEST)"
+                                                                                              },
+                                                                                 "assetName":  {
+                                                                                                   "type":  "string",
+                                                                                                   "example":  "Test Asset",
+                                                                                                   "description":  "The common name of the Asset"
+                                                                                               },
+                                                                                 "url":  {
+                                                                                             "type":  "string",
+                                                                                             "example":  "https://example.com",
+                                                                                             "description":  "The URL for the Asset"
+                                                                                         },
+                                                                                 "managerAddress":  {
+                                                                                                        "type":  "string",
+                                                                                                        "example":  "I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU",
+                                                                                                        "description":  "The public address of the manager"
+                                                                                                    },
+                                                                                 "reserveAddress":  {
+                                                                                                        "type":  "string",
+                                                                                                        "example":  "I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU",
+                                                                                                        "description":  "The public address of the reserve"
+                                                                                                    },
+                                                                                 "freezeAddress":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU",
+                                                                                                       "description":  "The public address of the freeze"
+                                                                                                   },
+                                                                                 "clawbackAddress":  {
+                                                                                                         "type":  "string",
+                                                                                                         "example":  "I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU",
+                                                                                                         "description":  "The public address of the clawback"
+                                                                                                     }
+                                                                             },
+                                                              "required":  [
+                                                                               "total",
+                                                                               "decimals",
+                                                                               "defaultFrozen",
+                                                                               "unitName",
+                                                                               "assetName",
+                                                                               "url"
+                                                                           ]
+                                                          },
+                                       "CreateAssetResponseDto":  {
+                                                                      "type":  "object",
+                                                                      "properties":  {
+                                                                                         "transaction_id":  {
+                                                                                                                "type":  "string",
+                                                                                                                "example":  "QOOBRVQMX4HW5QZ2EGLQDQCQTKRF3UP3JKDGKYPCXMI6AVV35KQA",
+                                                                                                                "description":  "The transaction id of the transfer"
+                                                                                                            }
+                                                                                     },
+                                                                      "required":  [
+                                                                                       "transaction_id"
+                                                                                   ]
+                                                                  },
+                                       "AssetTransferRequestDto":  {
+                                                                       "type":  "object",
+                                                                       "properties":  {
+                                                                                          "assetId":  {
+                                                                                                          "format":  "int64",
+                                                                                                          "type":  "integer",
+                                                                                                          "example":  1234567890,
+                                                                                                          "description":  "The id of the Asset to transfer"
+                                                                                                      },
+                                                                                          "userId":  {
+                                                                                                         "type":  "string",
+                                                                                                         "example":  "1234",
+                                                                                                         "description":  "The id of the User to transfer the Asset to"
+                                                                                                     },
+                                                                                          "amount":  {
+                                                                                                         "type":  "number",
+                                                                                                         "example":  10,
+                                                                                                         "description":  "The amount of the Asset to transfer"
+                                                                                                     },
+                                                                                          "lease":  {
+                                                                                                        "type":  "string",
+                                                                                                        "example":  "9kykoZ1IpuOAqhzDgRVaVY2ME0ZlCNrUpnzxpXlEF/s=",
+                                                                                                        "description":  "Optional 32-byte base64-encoded lease to prevent replay and conflicting transactions. Use a fixed value to ensure exclusivity. Generate with: Buffer.from(crypto.randomBytes(32)).toString(\"base64\")"
+                                                                                                    },
+                                                                                          "note":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "Note to all: notes are public",
+                                                                                                       "description":  "Optional public note to attach to transaction"
+                                                                                                   }
+                                                                                      },
+                                                                       "required":  [
+                                                                                        "assetId",
+                                                                                        "userId",
+                                                                                        "amount"
+                                                                                    ]
+                                                                   },
+                                       "AssetTransferResponseDto":  {
+                                                                        "type":  "object",
+                                                                        "properties":  {
+                                                                                           "transaction_id":  {
+                                                                                                                  "type":  "string",
+                                                                                                                  "example":  "QOOBRVQMX4HW5QZ2EGLQDQCQTKRF3UP3JKDGKYPCXMI6AVV35KQA",
+                                                                                                                  "description":  "The transaction id of the transfer"
+                                                                                                              }
+                                                                                       },
+                                                                        "required":  [
+                                                                                         "transaction_id"
+                                                                                     ]
+                                                                    },
+                                       "AlgoTransferRequestDto":  {
+                                                                      "type":  "object",
+                                                                      "properties":  {
+                                                                                         "toAddress":  {
+                                                                                                           "type":  "string",
+                                                                                                           "example":  "1234",
+                                                                                                           "description":  "Address to transfer Algos to"
+                                                                                                       },
+                                                                                         "amount":  {
+                                                                                                        "type":  "number",
+                                                                                                        "example":  10,
+                                                                                                        "description":  "The amount of algos to transfer"
+                                                                                                    },
+                                                                                         "fromUserId":  {
+                                                                                                            "type":  "string",
+                                                                                                            "example":  "1234",
+                                                                                                            "description":  "The id of the User that is transferring Algos"
+                                                                                                        },
+                                                                                         "lease":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "9kykoZ1IpuOAqhzDgRVaVY2ME0ZlCNrUpnzxpXlEF/s=",
+                                                                                                       "description":  "Optional 32-byte base64-encoded lease to prevent replay and conflicting transactions. Use a fixed value to ensure exclusivity. Generate with: Buffer.from(crypto.randomBytes(32)).toString(\"base64\")"
+                                                                                                   },
+                                                                                         "note":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "Note to all: notes are public",
+                                                                                                      "description":  "Optional public note to attach to transaction"
+                                                                                                  }
+                                                                                     },
+                                                                      "required":  [
+                                                                                       "toAddress",
+                                                                                       "amount",
+                                                                                       "fromUserId"
+                                                                                   ]
+                                                                  },
+                                       "AlgoTransferResponseDto":  {
+                                                                       "type":  "object",
+                                                                       "properties":  {
+                                                                                          "transaction_id":  {
+                                                                                                                 "type":  "string",
+                                                                                                                 "example":  "QOOBRVQMX4HW5QZ2EGLQDQCQTKRF3UP3JKDGKYPCXMI6AVV35KQA",
+                                                                                                                 "description":  "The transaction id of the transfer"
+                                                                                                             }
+                                                                                      },
+                                                                       "required":  [
+                                                                                        "transaction_id"
+                                                                                    ]
+                                                                   },
+                                       "AssetClawbackRequestDto":  {
+                                                                       "type":  "object",
+                                                                       "properties":  {
+                                                                                          "assetId":  {
+                                                                                                          "format":  "int64",
+                                                                                                          "type":  "integer",
+                                                                                                          "example":  1234567890,
+                                                                                                          "description":  "The id of the Asset to clawback"
+                                                                                                      },
+                                                                                          "userId":  {
+                                                                                                         "type":  "string",
+                                                                                                         "example":  "1234",
+                                                                                                         "description":  "The id of the User to clawback the Asset from"
+                                                                                                     },
+                                                                                          "amount":  {
+                                                                                                         "type":  "number",
+                                                                                                         "example":  10,
+                                                                                                         "description":  "The amount of the Asset to transfer"
+                                                                                                     },
+                                                                                          "lease":  {
+                                                                                                        "type":  "string",
+                                                                                                        "example":  "9kykoZ1IpuOAqhzDgRVaVY2ME0ZlCNrUpnzxpXlEF/s=",
+                                                                                                        "description":  "Optional 32-byte base64-encoded lease to prevent replay and conflicting transactions. Use a fixed value to ensure exclusivity. Generate with: Buffer.from(crypto.randomBytes(32)).toString(\"base64\")"
+                                                                                                    },
+                                                                                          "note":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "Note to all: notes are public",
+                                                                                                       "description":  "Optional public note to attach to transaction"
+                                                                                                   }
+                                                                                      },
+                                                                       "required":  [
+                                                                                        "assetId",
+                                                                                        "userId",
+                                                                                        "amount"
+                                                                                    ]
+                                                                   },
+                                       "AppCallRequestDto":  {
+                                                                 "type":  "object",
+                                                                 "properties":  {
+                                                                                    "approvalProgram":  {
+                                                                                                            "type":  "string",
+                                                                                                            "example":  "BYEB",
+                                                                                                            "description":  "The program to execute for all OnCompletes"
+                                                                                                        },
+                                                                                    "clearProgram":  {
+                                                                                                         "type":  "string",
+                                                                                                         "example":  "BYEB",
+                                                                                                         "description":  "The program to execute for ClearState OnComplete"
+                                                                                                     },
+                                                                                    "appId":  {
+                                                                                                  "type":  "number",
+                                                                                                  "example":  1234,
+                                                                                                  "description":  "The id of the App"
+                                                                                              },
+                                                                                    "globalByteSlices":  {
+                                                                                                             "type":  "number",
+                                                                                                             "example":  1,
+                                                                                                             "description":  "The maximum number of global byte slices"
+                                                                                                         },
+                                                                                    "globalInts":  {
+                                                                                                       "type":  "number",
+                                                                                                       "example":  1,
+                                                                                                       "description":  "The maximum number of global ints"
+                                                                                                   },
+                                                                                    "localByteSlices":  {
+                                                                                                            "type":  "number",
+                                                                                                            "example":  1,
+                                                                                                            "description":  "The maximum number of local byte slices"
+                                                                                                        },
+                                                                                    "localInts":  {
+                                                                                                      "type":  "number",
+                                                                                                      "example":  1,
+                                                                                                      "description":  "The maximum number of local ints"
+                                                                                                  },
+                                                                                    "foreignAssets":  {
+                                                                                                          "example":  [
+                                                                                                                          1,
+                                                                                                                          2
+                                                                                                                      ],
+                                                                                                          "description":  "The asset to be passed to the app",
+                                                                                                          "type":  "array",
+                                                                                                          "items":  {
+                                                                                                                        "type":  "number"
+                                                                                                                    }
+                                                                                                      },
+                                                                                    "foreignApps":  {
+                                                                                                        "example":  [
+                                                                                                                        1,
+                                                                                                                        2
+                                                                                                                    ],
+                                                                                                        "description":  "Lists the applications in addition to the application-id whose global states may be accessed by this application\u0027s approval-program and clear-state-program. The access is read-only.",
+                                                                                                        "type":  "array",
+                                                                                                        "items":  {
+                                                                                                                      "type":  "number"
+                                                                                                                  }
+                                                                                                    },
+                                                                                    "args":  {
+                                                                                                 "type":  "object",
+                                                                                                 "additionalProperties":  true,
+                                                                                                 "example":  {
+                                                                                                                 "name":  "abi_method_name",
+                                                                                                                 "args":  [
+                                                                                                                              {
+                                                                                                                                  "type":  "pay | keyreg | axfer | acfg| appl",
+                                                                                                                                  "value":  null
+                                                                                                                              },
+                                                                                                                              {
+                                                                                                                                  "type":  "uint64",
+                                                                                                                                  "value":  12345
+                                                                                                                              },
+                                                                                                                              {
+                                                                                                                                  "type":  "address",
+                                                                                                                                  "value":  "V5LR6C5SVHBQY3SPTEPD5WEGNBBUDNEP2MSDIONQIODZXZHRMC6QF3CTZI"
+                                                                                                                              },
+                                                                                                                              {
+                                                                                                                                  "type":  "string",
+                                                                                                                                  "value":  "abcd"
+                                                                                                                              }
+                                                                                                                          ],
+                                                                                                                 "returns":  {
+                                                                                                                                 "type":  "void"
+                                                                                                                             }
+                                                                                                             },
+                                                                                                 "description":  "The arguments to be passed to the app as a JSON object"
+                                                                                             },
+                                                                                    "foreignAccounts":  {
+                                                                                                            "example":  [
+                                                                                                                            1,
+                                                                                                                            2
+                                                                                                                        ],
+                                                                                                            "description":  "List of accounts in addition to the sender that may be accessed from the application\u0027s approval-program and clear-state-program.",
+                                                                                                            "type":  "array",
+                                                                                                            "items":  {
+                                                                                                                          "type":  "string"
+                                                                                                                      }
+                                                                                                        },
+                                                                                    "boxes":  {
+                                                                                                  "example":  [
+                                                                                                                  {
+                                                                                                                      "n":  "YWN0XwAAAAAAAATS"
+                                                                                                                  }
+                                                                                                              ],
+                                                                                                  "description":  "The boxes that should be made available for the runtime of the program.",
+                                                                                                  "type":  "array",
+                                                                                                  "items":  {
+                                                                                                                "type":  "string"
+                                                                                                            }
+                                                                                              },
+                                                                                    "onComplete":  {
+                                                                                                       "type":  "number",
+                                                                                                       "example":  [
+                                                                                                                       0,
+                                                                                                                       1,
+                                                                                                                       2,
+                                                                                                                       3,
+                                                                                                                       4,
+                                                                                                                       5
+                                                                                                                   ],
+                                                                                                       "description":  "An application transaction must indicate the action to be taken following the execution of its approvalProgram or clearStateProgram."
+                                                                                                   },
+                                                                                    "fee":  {
+                                                                                                "type":  "number",
+                                                                                                "example":  1000,
+                                                                                                "description":  "The fee to be paid for the transaction. Fee should be in microAlgos."
+                                                                                            },
+                                                                                    "fromUserId":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "1234",
+                                                                                                       "description":  "The id of the User that is transferring Algos"
+                                                                                                   },
+                                                                                    "lease":  {
+                                                                                                  "type":  "string",
+                                                                                                  "example":  "9kykoZ1IpuOAqhzDgRVaVY2ME0ZlCNrUpnzxpXlEF/s=",
+                                                                                                  "description":  "Optional 32-byte base64-encoded lease to prevent replay and conflicting transactions. Use a fixed value to ensure exclusivity. Generate with: Buffer.from(crypto.randomBytes(32)).toString(\"base64\")"
+                                                                                              },
+                                                                                    "note":  {
+                                                                                                 "type":  "string",
+                                                                                                 "example":  "Note to all: notes are public",
+                                                                                                 "description":  "Optional public note to attach to transaction"
+                                                                                             }
+                                                                                },
+                                                                 "required":  [
+                                                                                  "fromUserId"
+                                                                              ]
+                                                             },
+                                       "AppCallResponseDto":  {
+                                                                  "type":  "object",
+                                                                  "properties":  {
+                                                                                     "transaction_id":  {
+                                                                                                            "type":  "string",
+                                                                                                            "example":  "QOOBRVQMX4HW5QZ2EGLQDQCQTKRF3UP3JKDGKYPCXMI6AVV35KQA",
+                                                                                                            "description":  "The transaction id of the transfer"
+                                                                                                        }
+                                                                                 },
+                                                                  "required":  [
+                                                                                   "transaction_id"
+                                                                               ]
+                                                              },
+                                       "GroupRequestDto":  {
+                                                               "type":  "object",
+                                                               "properties":  {
+                                                                                  "transactions":  {
+                                                                                                       "example":  [
+                                                                                                                       {
+                                                                                                                           "type":  "payment",
+                                                                                                                           "payload":  {
+                                                                                                                                           "toAddress":  "ADDR",
+                                                                                                                                           "amount":  1000,
+                                                                                                                                           "fromUserId":  "manager"
+                                                                                                                                       }
+                                                                                                                       },
+                                                                                                                       {
+                                                                                                                           "type":  "appCall",
+                                                                                                                           "payload":  {
+                                                                                                                                           "appId":  123,
+                                                                                                                                           "onComplete":  0,
+                                                                                                                                           "fromUserId":  "manager"
+                                                                                                                                       }
+                                                                                                                       }
+                                                                                                                   ],
+                                                                                                       "type":  "array",
+                                                                                                       "items":  {
+                                                                                                                     "type":  "object"
+                                                                                                                 }
+                                                                                                   }
+                                                                              },
+                                                               "required":  [
+                                                                                "transactions"
+                                                                            ]
+                                                           },
+                                       "GroupResponseDto":  {
+                                                                "type":  "object",
+                                                                "properties":  {
+                                                                                   "group_id":  {
+                                                                                                    "type":  "string",
+                                                                                                    "example":  "QOOBRVQMX4HW5QZ2EGLQDQCQTKRF3UP3JKDGKYPCXMI6AVV35KQA",
+                                                                                                    "description":  "The group id of the transaction"
+                                                                                                }
+                                                                               },
+                                                                "required":  [
+                                                                                 "group_id"
+                                                                             ]
+                                                            }
+                                   }
+                   }
+}

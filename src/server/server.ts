@@ -8,6 +8,7 @@
  * Email:   SendGrid (if SENDGRID_API_KEY set) or console (dev)
  */
 
+import "dotenv/config";
 import express from "express";
 import { randomInt, randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
@@ -149,6 +150,7 @@ async function sendOtpEmail(email: string, otp: string): Promise<void> {
             await sgMail.send({
                 to: email,
                 from: process.env.ALGOPAY_FROM_EMAIL ?? "noreply@algopay.dev",
+                replyTo: process.env.ALGOPAY_REPLY_TO_EMAIL ?? email,
                 subject: "Your Algopay Login Code",
                 text: `Your one-time code is: ${otp}\n\nExpires in 10 minutes.\n\nIf you didn't request this, ignore this email.`,
                 html: `<div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:20px;">
@@ -252,15 +254,15 @@ export function createAuthServer(storeOverride?: KVStore) {
             return;
         }
 
-        // Req 44: rate limiting
-        if (!(await checkRateLimit(email))) {
-            res.status(429).json({
-                error: "RATE_LIMITED",
-                message:
-                    "Too many login attempts. Try again in 1 hour.",
-            });
-            return;
-        }
+        // Req 44: rate limiting (disabled for dev)
+        // if (!(await checkRateLimit(email))) {
+        //     res.status(429).json({
+        //         error: "RATE_LIMITED",
+        //         message:
+        //             "Too many login attempts. Try again in 1 hour.",
+        //     });
+        //     return;
+        // }
 
         const flowId = randomUUID();
         const otp = generateOtp();

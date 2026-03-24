@@ -3,14 +3,14 @@
  * Req 10: discover x402-enabled services
  * Req 49: GoPlausible Bazaar integration
  *
- * API Base: https://api.goplausible.xyz
+ * API Base: https://facilitator.goplausible.xyz
  * Endpoint: GET /discovery/resources
  *
  * The Bazaar is the official Algorand x402 service registry.
  * AI agents search for services here, then use x402 to pay.
  */
 
-const BAZAAR_API = "https://api.goplausible.xyz";
+const BAZAAR_API = process.env.GOPLAUSIBLE_FACILITATOR_URL ?? "https://facilitator.goplausible.xyz";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour cache
 
 // --- Types ---
