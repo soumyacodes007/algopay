@@ -1,0 +1,20 @@
+[32m[Nest] 148  - [39m03/23/2026, 7:16:52 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32m/v1/auth/sign-in[39m
+[32m[Nest] 148  - [39m03/23/2026, 7:16:52 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32mPOST[39m
+[32m[Nest] 148  - [39m03/23/2026, 7:20:47 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32m/v1/wallet/manager[39m
+[32m[Nest] 148  - [39m03/23/2026, 7:20:47 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32mGET[39m
+[32m[Nest] 148  - [39m03/23/2026, 7:20:47 PM [32m    LOG[39m [38;5;3m[http://vault:8200/v1/pawn/managers/keys/manager] [39m[32mgetKey url: [39m
+[95m[Nest] 148  - [39m03/23/2026, 7:20:47 PM [95m  DEBUG[39m [95mAccount asset holdings response: {"address":"HO5HWPRTVVIKRRCVHMAPHCFDVJ2IEBOTBWM52CAY4LJ2R4OMPT225WPMTY","amount":0,"amount-without-pending-rewards":0,"apps-local-state":[],"apps-total-schema":{"num-byte-slice":0,"num-uint":0},"assets":[],"created-apps":[],"created-assets":[],"min-balance":100000,"pending-rewards":0,"reward-base":27521,"rewards":0,"round":61714847,"status":"Offline","total-apps-opted-in":0,"total-assets-opted-in":0,"total-created-apps":0,"total-created-assets":0}[39m
+[95m[Nest] 148  - [39m03/23/2026, 7:20:47 PM [95m  DEBUG[39m [95mManager account details: [][39m
+[95m[Nest] 148  - [39m03/23/2026, 7:20:47 PM [95m  DEBUG[39m [95mAccount balance response: {"address":"HO5HWPRTVVIKRRCVHMAPHCFDVJ2IEBOTBWM52CAY4LJ2R4OMPT225WPMTY","amount":0,"amount-without-pending-rewards":0,"apps-local-state":[],"apps-total-schema":{"num-byte-slice":0,"num-uint":0},"assets":[],"created-apps":[],"created-assets":[],"min-balance":100000,"pending-rewards":0,"reward-base":27521,"rewards":0,"round":61714847,"status":"Offline","total-apps-opted-in":0,"total-assets-opted-in":0,"total-created-apps":0,"total-created-assets":0}[39m
+[95m[Nest] 148  - [39m03/23/2026, 7:20:47 PM [95m  DEBUG[39m [95mManager Algo Balance: 0[39m
+[32m[Nest] 148  - [39m03/23/2026, 7:21:00 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32m/v1/wallet/user[39m
+[32m[Nest] 148  - [39m03/23/2026, 7:21:00 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32mPOST[39m
+[32m[Nest] 148  - [39m03/24/2026, 7:03:55 AM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32m/v1/auth/sign-in[39m
+[32m[Nest] 148  - [39m03/24/2026, 7:03:55 AM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32mPOST[39m
+[32m[Nest] 148  - [39m03/24/2026, 7:05:09 AM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32m/v1/wallet/user[39m
+[32m[Nest] 148  - [39m03/24/2026, 7:05:09 AM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32mPOST[39m
+[32m[Nest] 148  - [39m03/26/2026, 4:06:58 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32m/v1/wallet/user[39m
+[32m[Nest] 148  - [39m03/26/2026, 4:06:58 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32mPOST[39m
+[32m[Nest] 148  - [39m03/26/2026, 4:35:59 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32m/v1/wallet/transactions/transfer-algo[39m
+[32m[Nest] 148  - [39m03/26/2026, 4:35:59 PM [32m    LOG[39m [38;5;3m[LoggingInterceptor] [39m[32mPOST[39m
+[32m[Nest] 148  - [39m03/26/2026, 4:35:59 PM [32m    LOG[39m [38;5;3m[http://vault:8200/v1/pawn/users/keys/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvdW15YWRlZXBiaG93bWlrNEBnbWFpbC5jb20iLCJ3YWxsZXRBZGRyZXNzIjoiWTZMU0M1R0g1VzU2UTNIU1NGN0E2VlpYUktGV0daQ1BHS1M2WlpHSEZMM1lBQ1JENFlKN1FSVDRRQSIsImlhdCI6MTc3NDU0MTIxOCwiZXhwIjoxNzc3MTMzMjE4fQ.BwCx7E8u-1Ap-4qp5EUey32IDe3EQsjZl1CA7TOsZfc] [39m[32mgetKey url: [39m

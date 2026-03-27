@@ -62,11 +62,11 @@ export function getFundingMethods(walletAddress, network) {
         });
         // AlgoKit dispenser (CLI)
         methods.push({
-            name: "AlgoKit Dispenser (CLI)",
+            name: "AlgoKit Testnet Dispenser (CLI)",
             type: "testnet",
             url: "",
-            description: `Run: algokit goal clerk send -a 10000000 -t ${walletAddress} -f <dispenser>`,
-            processingTime: "Instant",
+            description: `Run: algokit dispenser fund --receiver ${walletAddress} --amount 10`,
+            processingTime: "Instant (requires algokit dispenser login first)",
         });
         // Direct testnet deposit
         methods.push({
@@ -110,8 +110,17 @@ export async function checkDeposits(walletAddress, network, afterRound = 0, limi
         if (afterRound > 0) {
             query = query.minRound(afterRound);
         }
-        const result = await query.do();
-        const txns = result.transactions ?? [];
+        let txns = [];
+        try {
+            const result = await query.do();
+            txns = result.transactions ?? [];
+        }
+        catch (err) {
+            if (err.message?.includes("404") || err.status === 404) {
+                return []; // Unfunded account
+            }
+            throw err;
+        }
         const deposits = [];
         for (const tx of txns) {
             // Only incoming transactions (where this address is the receiver)

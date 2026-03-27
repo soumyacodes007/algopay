@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "properties": {
+    "transactions": {
+      "example": [
+        {
+          "type": "payment",
+          "payload": {
+            "toAddress": "ADDR",
+            "amount": 1000,
+            "fromUserId": "manager"
+          }
+        },
+        {
+          "type": "appCall",
+          "payload": {
+            "appId": 123,
+            "onComplete": 0,
+            "fromUserId": "manager"
+          }
+        }
+      ],
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "transactions"
+  ]
+}

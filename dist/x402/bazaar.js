@@ -3,14 +3,82 @@
  * Req 10: discover x402-enabled services
  * Req 49: GoPlausible Bazaar integration
  *
- * API Base: https://api.goplausible.xyz
+ * API Base: https://facilitator.goplausible.xyz
  * Endpoint: GET /discovery/resources
  *
  * The Bazaar is the official Algorand x402 service registry.
  * AI agents search for services here, then use x402 to pay.
  */
-const BAZAAR_API = "https://api.goplausible.xyz";
+const BAZAAR_API = process.env.GOPLAUSIBLE_FACILITATOR_URL ?? "https://facilitator.goplausible.xyz";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour cache
+/**
+ * Register an x402-enabled API endpoint with GoPlausible Bazaar (Req 13.2–13.4, 49)
+ *
+ * GoPlausible Bazaar: https://api.goplausible.xyz
+ * Requires: BAZAAR_API_KEY env var (get from https://goplausible.xyz)
+ *
+ * Falls back gracefully if Bazaar is offline (non-fatal).
+ */
+export async function registerWithBazaar(payload) {
+    const apiKey = process.env.BAZAAR_API_KEY;
+    const body = {
+        name: payload.name,
+        description: payload.description,
+        url: payload.serviceUrl,
+        price_usdc: payload.priceUsdc,
+        pay_to: payload.payToAddress,
+        network: payload.network ?? "algorand-testnet",
+        category: payload.category ?? "api",
+        tags: payload.tags ?? ["x402", "algorand"],
+        usdc_asset_id: payload.usdcAssetId ?? (payload.network === "algorand-mainnet" ? 31566704 : 10458941),
+        routes: payload.routes ?? [],
+        // x402-avm Bazaar discovery metadata
+        x402: true,
+        blockchain: "algorand",
+        protocol_version: "1.0",
+    };
+    try {
+        const res = await fetch(`${BAZAAR_API}/discovery/resources`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent": "algopay/1.0",
+                ...(apiKey ? { "Authorization": `Bearer ${apiKey}` } : {}),
+            },
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(10_000),
+        });
+        if (!res.ok) {
+            const errText = await res.text().catch(() => String(res.status));
+            // 401 means no API key — guide the user
+            if (res.status === 401) {
+                return {
+                    success: false,
+                    message: `Bazaar registration requires an API key. Get one at https://goplausible.xyz — then set BAZAAR_API_KEY in your .env`,
+                };
+            }
+            return {
+                success: false,
+                message: `Bazaar registration failed: ${res.status} — ${errText}`,
+            };
+        }
+        const data = (await res.json());
+        return {
+            success: true,
+            id: data.id ?? data.resource_id,
+            message: "Registered successfully on GoPlausible Bazaar",
+            url: `https://goplausible.xyz/bazaar/${data.id ?? ""}`,
+        };
+    }
+    catch (err) {
+        // Non-fatal — Bazaar being offline should not block API monetisation
+        return {
+            success: false,
+            message: `Bazaar unreachable (${err.message}). Your endpoint still works — registration can be retried later.`,
+        };
+    }
+}
 const cache = new Map();
 function getCached(key) {
     const entry = cache.get(key);

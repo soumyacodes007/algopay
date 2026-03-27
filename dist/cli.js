@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import "dotenv/config";
 import { Command } from "commander";
 import { getConfig } from "./config.js";
 import * as authClient from "./auth/client.js";
 import * as wallet from "./wallet/queries.js";
 import { sendPayment } from "./wallet/send.js";
 import * as vestige from "./wallet/vestige.js";
-import { searchBazaar } from "./x402/bazaar.js";
+import { searchBazaar, registerWithBazaar } from "./x402/bazaar.js";
 import { payAndFetch } from "./x402/pay.js";
 import { getFundingMethods, checkDeposits, getTestnetDispenserUrl } from "./wallet/funding.js";
 import { smartResolve, isNfdName, resolveAddressToNfd } from "./wallet/nfd.js";
@@ -385,6 +386,66 @@ bazaar
                     console.log(`      Tags: ${r.tags.join(", ")}\n`);
                 }
             }
+        }
+    }
+    catch (err) {
+        console.error(`Error: ${err.message}`);
+        process.exit(1);
+    }
+});
+bazaar
+    .command("register <serviceUrl>")
+    .description("Register your x402 API endpoint with GoPlausible Bazaar")
+    .requiredOption("--name <name>", "Service name shown in Bazaar")
+    .requiredOption("--price <usdc>", "Price per request in USDC (e.g. 0.05)")
+    .option("--description <desc>", "Short description of your API", "")
+    .option("--category <cat>", "Category (api|data|ai|analytics)", "api")
+    .option("--tags <tags>", "Comma-separated tags", "x402,algorand")
+    .action(async (serviceUrl, cmdOpts) => {
+    const address = authClient.getWalletAddress();
+    if (!address) {
+        console.error("Not authenticated. Run: algopay auth login <email>");
+        process.exit(1);
+    }
+    const opts = program.opts();
+    const network = opts.resolvedNetwork ?? "testnet";
+    const priceUsdc = parseFloat(cmdOpts.price);
+    if (isNaN(priceUsdc) || priceUsdc <= 0) {
+        console.error("Invalid price. Must be a positive number.");
+        process.exit(1);
+    }
+    console.log(`\n📋 Registering with GoPlausible Bazaar...`);
+    console.log(`   Service: ${cmdOpts.name}`);
+    console.log(`   URL:     ${serviceUrl}`);
+    console.log(`   Price:   $${priceUsdc} USDC / request`);
+    console.log(`   Pay-to:  ${address.slice(0, 16)}...\n`);
+    try {
+        const result = await registerWithBazaar({
+            name: cmdOpts.name,
+            description: cmdOpts.description || `x402-enabled API: ${cmdOpts.name}`,
+            serviceUrl,
+            priceUsdc,
+            payToAddress: address,
+            network: network === "mainnet" ? "algorand-mainnet" : "algorand-testnet",
+            category: cmdOpts.category,
+            tags: cmdOpts.tags.split(",").map((t) => t.trim()),
+        });
+        if (opts.json) {
+            console.log(JSON.stringify(result));
+        }
+        else if (result.success) {
+            console.log(`✅ Registered on Bazaar!`);
+            if (result.id)
+                console.log(`   ID:  ${result.id}`);
+            if (result.url)
+                console.log(`   URL: ${result.url}`);
+            console.log();
+        }
+        else {
+            console.error(`❌ ${result.message}`);
+            console.log(`\n   To get a Bazaar API key: https://goplausible.xyz`);
+            console.log(`   Then add  BAZAAR_API_KEY=<key>  to your .env file\n`);
+            process.exit(1);
         }
     }
     catch (err) {

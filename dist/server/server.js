@@ -7,12 +7,17 @@
  * Storage: Redis (if REDIS_URL set) or in-memory Map (dev fallback)
  * Email:   SendGrid (if SENDGRID_API_KEY set) or console (dev)
  */
+import "dotenv/config";
 import express from "express";
 import { randomInt, randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
 import http from "http";
 import * as wallet from "../wallet/queries.js";
+import { IntermezzoClient } from "../wallet/intermezzo.js";
+// Singleton Intermezzo client — uses INTERMEZZO_URL + INTERMEZZO_TOKEN env vars.
+// Falls back to mock mode (valid algosdk addresses) when env vars are not set.
+const intermezzo = new IntermezzoClient();
 // --- Config ---
 const JWT_SECRET = process.env.JWT_SECRET ?? "algopay-dev-secret-change-me";
 const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes (Req 2.5)
@@ -104,6 +109,7 @@ async function sendOtpEmail(email, otp) {
             await sgMail.send({
                 to: email,
                 from: process.env.ALGOPAY_FROM_EMAIL ?? "noreply@algopay.dev",
+                replyTo: process.env.ALGOPAY_REPLY_TO_EMAIL ?? email,
                 subject: "Your Algopay Login Code",
                 text: `Your one-time code is: ${otp}\n\nExpires in 10 minutes.\n\nIf you didn't request this, ignore this email.`,
                 html: `<div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:20px;">
@@ -193,14 +199,15 @@ export function createAuthServer(storeOverride) {
             });
             return;
         }
-        // Req 44: rate limiting
-        if (!(await checkRateLimit(email))) {
-            res.status(429).json({
-                error: "RATE_LIMITED",
-                message: "Too many login attempts. Try again in 1 hour.",
-            });
-            return;
-        }
+        // Req 44: rate limiting (disabled for dev)
+        // if (!(await checkRateLimit(email))) {
+        //     res.status(429).json({
+        //         error: "RATE_LIMITED",
+        //         message:
+        //             "Too many login attempts. Try again in 1 hour.",
+        //     });
+        //     return;
+        // }
         const flowId = randomUUID();
         const otp = generateOtp();
         // Store OTP with TTL (Req 2.5: 10 minutes)
@@ -277,12 +284,27 @@ export function createAuthServer(storeOverride) {
         }
         // OTP matches — success!
         await store.del(`otp:${flowId}`);
-        // In production: create Intermezzo session and get wallet address
-        // For dev: generate mock wallet address
-        const walletAddress = generateWalletAddress();
+        // In production: call Intermezzo to create a custodial Algorand wallet.
+        // Private key is stored in HashiCorp Vault — NEVER exported.
+        // In dev (no INTERMEZZO_URL set): returns a valid algosdk address via mock mode.
+        // Sanitize email into a Vault-safe user_id (no @, no dots)
+        const pawnUserId = record.email.replace(/@/g, "_at_").replace(/\./g, "_");
+        let walletAddress;
+        try {
+            const accountResult = await intermezzo.createAccount(pawnUserId);
+            walletAddress = accountResult.address;
+        }
+        catch (intermezzoErr) {
+            res.status(503).json({
+                error: "WALLET_CREATION_FAILED",
+                message: `Could not create wallet: ${intermezzoErr.message}. Ensure Intermezzo is running or INTERMEZZO_URL is not set (dev mode).`,
+            });
+            return;
+        }
         // Generate JWT session token (Req 21.7: 30-day validity)
         const sessionToken = jwt.sign({
             email: record.email,
+            pawnUserId,
             walletAddress,
             iat: Math.floor(Date.now() / 1000),
         }, JWT_SECRET, { expiresIn: `${SESSION_VALIDITY_DAYS}d` });

@@ -97,11 +97,11 @@ export function getFundingMethods(
 
     // AlgoKit dispenser (CLI)
     methods.push({
-      name: "AlgoKit Dispenser (CLI)",
+      name: "AlgoKit Testnet Dispenser (CLI)",
       type: "testnet",
       url: "",
-      description: `Run: algokit goal clerk send -a 10000000 -t ${walletAddress} -f <dispenser>`,
-      processingTime: "Instant",
+      description: `Run: algokit dispenser fund --receiver ${walletAddress} --amount 10`,
+      processingTime: "Instant (requires algokit dispenser login first)",
     });
 
     // Direct testnet deposit
@@ -159,8 +159,16 @@ export async function checkDeposits(
       query = query.minRound(afterRound);
     }
 
-    const result = await query.do();
-    const txns = (result as any).transactions ?? [];
+    let txns = [];
+    try {
+      const result = await query.do();
+      txns = (result as any).transactions ?? [];
+    } catch (err: any) {
+      if (err.message?.includes("404") || err.status === 404) {
+        return []; // Unfunded account
+      }
+      throw err;
+    }
 
     const deposits: DepositEvent[] = [];
 

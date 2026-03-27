@@ -15,6 +15,7 @@ import { getNetworkEndpoints } from "../config.js";
 import { buildUsdcTransfer, buildAlgoTransfer } from "./transactions.js";
 import { createAlgodClient, waitForConfirmation } from "./queries.js";
 import { getIntermezzoClient } from "./intermezzo.js";
+import jwt from "jsonwebtoken";
 import { runGuardrails, recordSpend, type GuardrailContext } from "./guardrails.js";
 
 // --- Types ---
@@ -73,64 +74,61 @@ export async function sendPayment(opts: SendOptions): Promise<SendResult> {
     return { success: false, error: `Guardrail blocked: ${guardrail.reason}` };
   }
 
-  // ─── Step 2: Build fee-pooled atomic group ───────────────────────────────
-  let group;
-  try {
-    if (asset === "USDC") {
-      group = await buildUsdcTransfer(
-        senderAddress,
-        recipientAddress,
-        amount,
-        ep.usdcAssetId,
-        backendAddress,
-        network
-      );
-    } else {
-      group = await buildAlgoTransfer(
-        senderAddress,
-        recipientAddress,
-        amount,
-        backendAddress,
-        network
-      );
-    }
-  } catch (err: any) {
-    return { success: false, error: `Failed to build transaction: ${err.message}` };
-  }
-
-  // ─── Step 3: Dry run — return without broadcasting ───────────────────────
+  // ─── Step 2 & 3: Dry run check ──────────────────────────────────────────
   if (dryRun) {
     return {
       success: true,
       dryRun: true,
-      fee: group.totalFee,
-      txId: group.unsignedTxns[1]?.txID() ?? "DRY-RUN",
+      fee: 1000,
+      txId: "DRY-RUN",
     };
   }
 
-  // ─── Step 4: Sign via Intermezzo ─────────────────────────────────────────
+  // ─── Step 4: Execute via Intermezzo (Pawn) ───────────────────────────────
   const intermezzo = getIntermezzoClient();
-  let signResult;
-  try {
-    signResult = await intermezzo.signTransactions(
-      group.unsignedTxns,
-      group.userTxIndices, // only sign user txns; fee-pooling tx is signed by backend
-      sessionToken
-    );
-  } catch (err: any) {
-    return { success: false, error: `Signing failed: ${err.message}` };
-  }
-
-  // ─── Step 5: Broadcast ───────────────────────────────────────────────────
-  const algod = createAlgodClient(network);
   let txId: string;
   try {
-    // In mock mode, signResult.signedTxns are encoded UNSIGNED txns.
-    // In prod mode, they are properly signed.
-    const sendResult = await algod.sendRawTransaction(signResult.signedTxns).do();
-    txId = String(signResult.txIds[1] ?? (sendResult as any).txId ?? "");
+    const decoded = jwt.decode(sessionToken) as any;
+    const pawnUserId = decoded?.pawnUserId;
+
+    if (!pawnUserId) {
+      // Fallback: derive from email if old JWT without pawnUserId
+      const email = decoded?.email;
+      if (!email) {
+        throw new Error(`Invalid session token: unable to determine user identity.`);
+      }
+      // Sanitize email same way as server.ts
+      const fallbackUserId = email.replace(/@/g, "_at_").replace(/\./g, "_");
+      if (asset === "ALGO") {
+        const res = await intermezzo.transferAlgo({
+          amount: Math.round(amount * 1_000_000),
+          toAddress: recipientAddress,
+          fromUserId: fallbackUserId,
+        });
+        txId = res.transaction_id;
+      } else {
+        throw new Error(`USDC sending via Pawn is not yet supported.`);
+      }
+    } else {
+      if (asset === "ALGO") {
+        const res = await intermezzo.transferAlgo({
+          amount: Math.round(amount * 1_000_000),
+          toAddress: recipientAddress,
+          fromUserId: pawnUserId,
+        });
+        txId = res.transaction_id;
+      } else {
+        throw new Error(`USDC sending via Pawn is not yet supported.`);
+      }
+    }
   } catch (err: any) {
-    return { success: false, error: `Broadcast failed: ${err.message}` };
+    return { success: false, error: `Transfer failed: ${err.message}` };
+  }
+
+  // If we are in mock mode, immediately resolve
+  if (txId.startsWith("MOCK_TX_")) {
+    recordSpend(amount, asset);
+    return { success: true, txId, confirmedRound: 0, fee: 1000 };
   }
 
   // ─── Step 6: Wait for confirmation ───────────────────────────────────────
@@ -145,7 +143,7 @@ export async function sendPayment(opts: SendOptions): Promise<SendResult> {
       success: true,
       txId,
       confirmedRound,
-      fee: group.totalFee,
+      fee: 1000,
     };
   } catch (err: any) {
     // Tx might still be pending — return txId so user can check manually

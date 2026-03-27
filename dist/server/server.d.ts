@@ -7,6 +7,7 @@
  * Storage: Redis (if REDIS_URL set) or in-memory Map (dev fallback)
  * Email:   SendGrid (if SENDGRID_API_KEY set) or console (dev)
  */
+import "dotenv/config";
 interface KVStore {
     get(key: string): Promise<string | null>;
     set(key: string, value: string, ttlSeconds?: number): Promise<void>;

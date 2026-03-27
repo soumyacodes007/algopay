@@ -359,9 +359,12 @@ export function createAuthServer(storeOverride?: KVStore) {
         // In production: call Intermezzo to create a custodial Algorand wallet.
         // Private key is stored in HashiCorp Vault — NEVER exported.
         // In dev (no INTERMEZZO_URL set): returns a valid algosdk address via mock mode.
+        // Sanitize email into a Vault-safe user_id (no @, no dots)
+        const pawnUserId = record.email.replace(/@/g, "_at_").replace(/\./g, "_");
+
         let walletAddress: string;
         try {
-            const accountResult = await intermezzo.createAccount(flowId);
+            const accountResult = await intermezzo.createAccount(pawnUserId);
             walletAddress = accountResult.address;
         } catch (intermezzoErr: any) {
             res.status(503).json({
@@ -376,6 +379,7 @@ export function createAuthServer(storeOverride?: KVStore) {
         const sessionToken = jwt.sign(
             {
                 email: record.email,
+                pawnUserId,
                 walletAddress,
                 iat: Math.floor(Date.now() / 1000),
             },

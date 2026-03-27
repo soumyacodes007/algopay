@@ -36,7 +36,22 @@ export async function getStatus(address, network) {
 export async function getBalance(address, network) {
     const indexer = createIndexerClient(network);
     const ep = getNetworkEndpoints(network);
-    const accountInfo = await indexer.lookupAccountByID(address).do();
+    let accountInfo;
+    try {
+        accountInfo = await indexer.lookupAccountByID(address).do();
+    }
+    catch (err) {
+        if (err.message?.includes("404") || err.status === 404) {
+            return {
+                address,
+                network,
+                algo: { amount: 0, displayAmount: "0.000000" },
+                assets: [],
+                totalUsdcBalance: "0.00",
+            };
+        }
+        throw err;
+    }
     const account = accountInfo.account;
     const algoMicro = Number(account.amount ?? 0);
     const algoDisplay = (algoMicro / 1_000_000).toFixed(6);
@@ -91,7 +106,16 @@ export async function getHistory(address, network, options = {}) {
     const indexer = createIndexerClient(network);
     const limit = options.limit ?? 10;
     const query = indexer.lookupAccountTransactions(address).limit(limit);
-    const result = await query.do();
+    let result;
+    try {
+        result = await query.do();
+    }
+    catch (err) {
+        if (err.message?.includes("404") || err.status === 404) {
+            return []; // Unfunded account has no history
+        }
+        throw err;
+    }
     const transactions = [];
     for (const tx of result.transactions ?? []) {
         const txType = String(tx.txType ?? tx["tx-type"] ?? "unknown");
