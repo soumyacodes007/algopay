@@ -1,0 +1,113 @@
+{
+  "manifest_version": "0.3",
+  "name": "x402-wallet",
+  "display_name": "x402 Wallet — USDC Payments on Stellar, Base & Algorand",
+  "version": "0.2.0",
+  "icon": "icon.png",
+  "description": "Minimal x402 wallet for Claude. Check USDC balance and sign payments on Stellar, Base, or Algorand — no API keys, no accounts.",
+  "long_description": "Give Claude a USDC wallet. This extension adds three tools:\n\n- **check_balance** — View your USDC balance and wallet address\n- **pay** — Sign an x402 payment authorization (USDC on Stellar, Base, or Algorand)\n- **x402_fetch** — Fetch a URL with automatic x402 payment handling\n\nNow supports **Algorand**! Use your 25-word mnemonic to pay with USDC on Algorand Testnet or Mainnet.\n\nBudget limits protect your funds: set max per call and max per day.",
+  "author": {
+    "name": "402md",
+    "url": "https://402.md"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/402md/x402-wallet-for-claude-desktop"
+  },
+  "homepage": "https://402.md",
+  "keywords": [
+    "x402",
+    "wallet",
+    "usdc",
+    "payments",
+    "stellar",
+    "base",
+    "algorand",
+    "agent-commerce"
+  ],
+
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "STELLAR_SECRET": "${user_config.stellar_secret}",
+        "EVM_PRIVATE_KEY": "${user_config.evm_private_key}",
+        "ALGORAND_MNEMONIC": "${user_config.algorand_mnemonic}",
+        "NETWORK": "${user_config.network}",
+        "MAX_PER_CALL": "${user_config.max_per_call}",
+        "MAX_PER_DAY": "${user_config.max_per_day}"
+      }
+    }
+  },
+
+  "user_config": {
+    "stellar_secret": {
+      "type": "string",
+      "title": "Stellar Secret Key",
+      "description": "Your Stellar wallet secret key (starts with S...). Stored securely in your OS keychain.",
+      "required": false,
+      "sensitive": true
+    },
+    "evm_private_key": {
+      "type": "string",
+      "title": "EVM Private Key",
+      "description": "Your EVM wallet private key (starts with 0x...). Stored securely in your OS keychain.",
+      "required": false,
+      "sensitive": true
+    },
+    "algorand_mnemonic": {
+      "type": "string",
+      "title": "Algorand Mnemonic (25 words)",
+      "description": "Your Algorand wallet 25-word seed phrase. Used to sign x402 payments on Algorand Testnet or Mainnet. Stored securely in your OS keychain.",
+      "required": false,
+      "sensitive": true
+    },
+    "network": {
+      "type": "string",
+      "title": "Default Network",
+      "description": "Payment network: stellar, stellar-testnet, base, base-sepolia, algorand, or algorand-testnet.",
+      "required": false,
+      "default": "algorand-testnet"
+    },
+    "max_per_call": {
+      "type": "string",
+      "title": "Max USDC per Payment",
+      "description": "Maximum USDC allowed per single payment. Safety limit.",
+      "required": false,
+      "default": "0.10"
+    },
+    "max_per_day": {
+      "type": "string",
+      "title": "Max USDC per Day",
+      "description": "Maximum total USDC allowed per calendar day.",
+      "required": false,
+      "default": "20.00"
+    }
+  },
+
+  "tools": [
+    {
+      "name": "check_balance",
+      "description": "Check USDC balance and wallet address on the configured network."
+    },
+    {
+      "name": "pay",
+      "description": "Sign an x402 USDC payment authorization. Returns the X-PAYMENT header value."
+    },
+    {
+      "name": "x402_fetch",
+      "description": "Fetch a URL with automatic x402 payment. Handles 402 responses by signing USDC payment and retrying with X-PAYMENT header."
+    }
+  ],
+
+  "compatibility": {
+    "platforms": ["darwin", "win32"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}
