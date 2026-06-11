@@ -4,3 +4,9 @@ dist/
 *.mcpb
 *.log
 .DS_Store
+
+
+services\pixa-hub
+.env
+pixa.mcpb
+docs
