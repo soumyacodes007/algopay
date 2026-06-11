@@ -4,9 +4,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 BUILD_DIR="$ROOT_DIR/.mcpb-build"
-OUTPUT="$ROOT_DIR/x402-wallet.mcpb"
+OUTPUT="$ROOT_DIR/pixa.mcpb"
 
-echo "Building x402-wallet desktop extension..."
+echo "Building PIXA desktop extension..."
 
 # 1. Clean
 rm -rf "$BUILD_DIR" "$OUTPUT"
@@ -15,7 +15,7 @@ mkdir -p "$BUILD_DIR/server"
 # 2. Build
 echo "Compiling TypeScript..."
 cd "$ROOT_DIR"
-npm run build
+cmd.exe /c npm run build
 
 # 3. Copy server bundle (no sourcemap)
 cp "$ROOT_DIR/dist/index.js" "$BUILD_DIR/server/index.js"
@@ -28,7 +28,7 @@ rm -f "$BUILD_DIR/server/index.js.bak"
 echo "Installing production dependencies..."
 cp "$ROOT_DIR/package.json" "$BUILD_DIR/server/package.json"
 cd "$BUILD_DIR/server"
-npm install --omit=dev --ignore-scripts --legacy-peer-deps
+cmd.exe /c npm install --omit=dev --ignore-scripts --legacy-peer-deps
 rm -f package.json package-lock.json
 
 # 6. Prune node_modules
@@ -58,14 +58,18 @@ fi
 
 # 7. Copy manifest and icon
 cp "$ROOT_DIR/manifest.json" "$BUILD_DIR/manifest.json"
-if [ -f "$ROOT_DIR/icon.png" ]; then
-  cp "$ROOT_DIR/icon.png" "$BUILD_DIR/icon.png"
+if [ -f "$ROOT_DIR/PIXA-LOGO.PNG" ]; then
+  cp "$ROOT_DIR/PIXA-LOGO.PNG" "$BUILD_DIR/PIXA-LOGO.PNG"
 fi
 
 # 8. Pack
 echo "Packing .mcpb bundle..."
-cd "$BUILD_DIR"
-zip -r "$OUTPUT" . -x "*.DS_Store" "*.git*" > /dev/null
+to_windows_path() {
+  echo "$1" | sed -E 's#^/mnt/([a-zA-Z])/#\1:/#' | sed 's#/#\\#g'
+}
+WIN_BUILD_DIR="$(to_windows_path "$BUILD_DIR")"
+WIN_OUTPUT="$(to_windows_path "$OUTPUT")"
+powershell.exe -NoProfile -Command "Add-Type -AssemblyName 'System.IO.Compression.FileSystem'; if (Test-Path '$WIN_OUTPUT') { Remove-Item -LiteralPath '$WIN_OUTPUT' -Force }; [System.IO.Compression.ZipFile]::CreateFromDirectory('$WIN_BUILD_DIR', '$WIN_OUTPUT')"
 
 # 9. Clean up
 rm -rf "$BUILD_DIR"
@@ -75,5 +79,5 @@ echo ""
 echo "Done! Created: $OUTPUT ($SIZE)"
 echo ""
 echo "Install in Claude Desktop:"
-echo "  - Double-click x402-wallet.mcpb"
+echo "  - Double-click pixa.mcpb"
 echo "  - Or drag it into Claude Desktop settings"

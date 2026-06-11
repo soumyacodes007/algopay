@@ -11,16 +11,33 @@ import { registerBazaarSearch } from '@/tools/bazaar-search.js'
 import { registerRequestFunding } from '@/tools/request-funding.js'
 import { registerSpendingReport } from '@/tools/spending-report.js'
 import { registerCreateToken } from '@/tools/create-token.js'
+import { registerOnrampTool } from '@/tools/onramp.js'
+import { registerPeraRekeyTool } from '@/tools/rekey-pera.js'
+import {
+  EXTENSION_ID,
+  RESOURCE_MIME_TYPE
+} from '@modelcontextprotocol/ext-apps/server'
 
 export function createMcpServer(config: AppConfig): McpServer {
-  const server = new McpServer({
-    name: 'x402-wallet',
-    version: '0.1.0'
-  })
+  const server = new McpServer(
+    {
+      name: 'x402-wallet',
+      version: '0.2.3'
+    },
+    {
+      capabilities: {
+        extensions: {
+          [EXTENSION_ID]: {
+            mimeTypes: [RESOURCE_MIME_TYPE]
+          }
+        }
+      }
+    }
+  )
 
   const spending = new SpendingTracker(config.budget)
 
-  // Core wallet
+  // Core wallet - Algorand only
   registerCheckBalance(server, config)
   registerTransferUsdc(server, config, spending)
   registerTransferAlgo(server, config)
@@ -41,7 +58,8 @@ export function createMcpServer(config: AppConfig): McpServer {
 
   // Discovery
   registerBazaarSearch(server)
+  registerOnrampTool(server)
+  registerPeraRekeyTool(server)
 
   return server
 }
-

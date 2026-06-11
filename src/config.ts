@@ -23,7 +23,7 @@ function buildState(): Omit<AppConfig, 'reload'> {
     process.env.ALGORAND_MNEMONIC ?? wallet?.algorandMnemonic ?? undefined
   const network = (process.env.NETWORK ??
     wallet?.network ??
-    'stellar') as PaymentNetwork
+    'algorand-testnet') as PaymentNetwork
 
   const maxPerCall = process.env.MAX_PER_CALL ?? '0.10'
   const maxPerDay = process.env.MAX_PER_DAY ?? '20.00'

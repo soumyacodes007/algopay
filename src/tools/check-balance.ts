@@ -1,8 +1,15 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { AppConfig } from '@/types.js'
-import { getWalletAddress, getUsdcBalance, isAlgorandNetwork } from '@/clients.js'
+import {
+  getWalletAddress,
+  getUsdcBalance,
+  isAlgorandNetwork
+} from '@/clients.js'
 
-async function getAlgoBalance(address: string, network: string): Promise<string> {
+async function getAlgoBalance(
+  address: string,
+  network: string
+): Promise<string> {
   const algodUrl =
     network === 'algorand-testnet'
       ? 'https://testnet-api.algonode.cloud'
@@ -26,8 +33,7 @@ export function registerCheckBalance(
 ): void {
   server.tool(
     'check_balance',
-    'Check wallet balances: USDC and (on Algorand) native ALGO for gas fees. ' +
-      'Works on Algorand Testnet/Mainnet, Stellar, and Base.',
+    'Check wallet balances: USDC and native ALGO for gas fees on Algorand Testnet/Mainnet.',
     {},
     async () => {
       if (!config.canPay) {
@@ -35,7 +41,7 @@ export function registerCheckBalance(
           content: [
             {
               type: 'text' as const,
-              text: 'No wallet configured. Set ALGORAND_MNEMONIC, STELLAR_SECRET, or EVM_PRIVATE_KEY.'
+              text: 'No wallet configured. Set ALGORAND_MNEMONIC environment variable.'
             }
           ],
           isError: true

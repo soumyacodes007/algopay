@@ -1,14 +1,16 @@
 {
-  "name": "x402-wallet-mcp",
+  "name": "pixa-wallet-mcp",
   "version": "0.1.0",
   "description": "Minimal MCP server — x402 wallet with check_balance, pay, and x402_fetch tools",
   "type": "module",
   "bin": {
+    "pixa-wallet-mcp": "./dist/index.js",
     "x402-wallet-mcp": "./dist/index.js"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -19,14 +21,17 @@
     "format": "prettier --write 'src/**/*.ts' '__tests__/**/*.ts'",
     "format:check": "prettier --check 'src/**/*.ts' '__tests__/**/*.ts'",
     "format:fix": "prettier --write 'src/**/*.ts' '__tests__/**/*.ts'",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "build:mcpb": "bash scripts/build-mcpb.sh",
-    "prepublishOnly": "npm run build",
+    "test": "vitest run --configLoader runner",
+    "test:watch": "vitest --configLoader runner",
+    "build:mcpb": "powershell -ExecutionPolicy Bypass -File scripts/build-mcpb.ps1 -SkipBuild",
+    "prepublishOnly": "npm test && npm run build",
     "prepare": "husky"
   },
   "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.7.4",
     "@modelcontextprotocol/sdk": "^1.26.0",
+    "@onramp.money/onramp-web-sdk": "^2.0.1",
+    "@perawallet/connect": "^1.5.2",
     "@x402-avm/avm": "^2.6.1",
     "@x402-avm/core": "^2.6.1",
     "@x402-avm/fetch": "^2.6.1",

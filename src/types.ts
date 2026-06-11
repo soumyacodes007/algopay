@@ -28,6 +28,7 @@ export interface BudgetConfig {
 export interface WalletFileConfig {
   stellarSecret?: string
   evmPrivateKey?: string
+  algorandMnemonic?: string
   network?: string
   createdAt?: string
 }

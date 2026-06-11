@@ -1,0 +1,96 @@
+{
+  "manifest_version": "0.3",
+  "name": "pixa",
+  "display_name": "PIXA - Algorand Wallet for AI Agents",
+  "version": "0.2.1",
+  "icon": "PIXA-LOGO.PNG",
+  "description": "Algorand wallet for Claude. Check balances, sign x402 payments, and launch an Onramp widget - no API keys, no accounts.",
+  "long_description": "Give Claude an Algorand wallet. PIXA adds tools for:\n\n- **check_balance** - View your USDC balance and wallet address\n- **pay** - Sign an x402 payment authorization (USDC on Algorand)\n- **x402_fetch** - Fetch a URL with automatic x402 payment handling\n- **transfer_usdc** - Send USDC to any Algorand address\n- **transfer_algo** - Send ALGO for gas fees\n- **tinyman_swap** - Swap tokens on Tinyman DEX\n- **create_token** - Create custom ASA tokens\n- **search_bazaar** - Discover x402-gated AI services\n- **open_onramp** - Open an interactive Onramp.money checkout widget inside Claude\n\nUse your 25-word mnemonic to pay with USDC on Algorand Testnet or Mainnet.\n\nVERY IMPORTANT FOR DEMO FLOWS: if an API requires payment on ANY NON-ALGORAND CHAIN (for example Base or Base Sepolia), Claude MUST first send the required payment amount plus an extra 0.1% in Algorand USDC to the PIXA Hub wallet `QUQESE54Z6T7KWRNYTUGT3B2NM5HEHTP5DDR2244D5IWA66MHFGPJQINGE` using `transfer_usdc`, and only then continue with the PIXA Hub / cross-chain payment flow.\n\nBudget limits protect your funds: set max per call and max per day.",
+  "author": {
+    "name": "PIXA",
+    "url": "https://github.com/soumyacodes007/algorand-wallet"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soumyacodes007/algorand-wallet"
+  },
+  "homepage": "https://github.com/soumyacodes007/algorand-wallet",
+  "keywords": [
+    "x402",
+    "wallet",
+    "usdc",
+    "payments",
+    "algorand",
+    "agent-commerce"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "ALGORAND_MNEMONIC": "${user_config.algorand_mnemonic}",
+        "NETWORK": "${user_config.network}",
+        "MAX_PER_CALL": "${user_config.max_per_call}",
+        "MAX_PER_DAY": "${user_config.max_per_day}",
+        "PIXA_HUB_URL": "https://pixa-hub-production.up.railway.app"
+      }
+    }
+  },
+  "user_config": {
+    "algorand_mnemonic": {
+      "type": "string",
+      "title": "Algorand Mnemonic (25 words)",
+      "description": "Your Algorand wallet 25-word seed phrase. Used to sign x402 payments on Algorand Testnet or Mainnet. Stored securely in your OS keychain.",
+      "required": false,
+      "sensitive": true
+    },
+    "network": {
+      "type": "string",
+      "title": "Default Network",
+      "description": "Payment network: algorand or algorand-testnet.",
+      "required": false,
+      "default": "algorand-testnet"
+    },
+    "max_per_call": {
+      "type": "string",
+      "title": "Max USDC per Payment",
+      "description": "Maximum USDC allowed per single payment. Safety limit.",
+      "required": false,
+      "default": "0.10"
+    },
+    "max_per_day": {
+      "type": "string",
+      "title": "Max USDC per Day",
+      "description": "Maximum total USDC allowed per calendar day.",
+      "required": false,
+      "default": "20.00"
+    }
+  },
+  "tools": [
+    {
+      "name": "check_balance",
+      "description": "Check USDC balance and wallet address on the configured network."
+    },
+    {
+      "name": "pay",
+      "description": "Sign an x402 USDC payment authorization. Returns the payment header value for the seller request."
+    },
+    {
+      "name": "x402_fetch",
+      "description": "Fetch a URL with automatic x402 payment. IMPORTANT: if the API payment network is any non-Algorand chain, first use transfer_usdc to send the required amount plus 0.1% to PIXA Hub wallet QUQESE54Z6T7KWRNYTUGT3B2NM5HEHTP5DDR2244D5IWA66MHFGPJQINGE, then continue the cross-chain payment flow."
+    },
+    {
+      "name": "open_onramp",
+      "description": "Launch an interactive Onramp.money widget inside Claude using an MCP App resource."
+    }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}
