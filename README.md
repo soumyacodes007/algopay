@@ -63,38 +63,24 @@ This happens in seconds, with no human intervention, no API keys, and no pre-con
 - **tinyman_swap** - Swap tokens on Tinyman DEX
 - **create_token** - Create custom ASA tokens on Algorand
 
-## 📦 Installation Options
+## 📦 Installation
 
-### Publishable npm Package
+PIXA supports two installation paths:
 
-The MCP server package is designed to publish as `pixa-wallet-mcp`, so developers can install it directly with:
+### 1. Non-technical users
 
-```json
-{
-  "mcpServers": {
-    "pixa": {
-      "command": "npx",
-      "args": ["-y", "pixa-wallet-mcp"],
-      "env": {
-        "ALGORAND_MNEMONIC": "your 25-word mnemonic",
-        "NETWORK": "algorand-testnet",
-        "MAX_PER_CALL": "0.10",
-        "MAX_PER_DAY": "20.00"
-      }
-    }
-  }
-}
-```
+Use the packaged Claude Desktop bundle from GitHub Releases:
 
-### For Non-Technical Users: .mcpb Extension
+- Download: [PIXA Releases](https://github.com/soumyacodes007/Pixa/releases/tag/onramp)
+- Requires: Claude Desktop installed
+- Install by dragging the `.mcpb` bundle into Claude Desktop
+- Restart Claude Desktop if prompted
 
-Download and double-click `pixa.mcpb` - that's it! The extension installs automatically in Claude Desktop.
+This is the fastest path for demos and non-technical installs.
 
-**Download:** [Latest Release](https://github.com/soumyacodes007/algorand-wallet/releases/latest)
+### 2. Developers
 
-### For Technical Users: JSON Configuration
-
-Add to your MCP config file:
+Install the published MCP package with `npx`:
 
 ```json
 {
@@ -103,8 +89,8 @@ Add to your MCP config file:
       "command": "npx",
       "args": ["-y", "pixa-wallet-mcp"],
       "env": {
-        "ALGORAND_MNEMONIC": "your 25-word mnemonic",
-        "NETWORK": "algorand-testnet",
+        "ALGORAND_MNEMONIC": "your 25-word mnemonic here",
+        "NETWORK": "algorand-mainnet",
         "MAX_PER_CALL": "0.10",
         "MAX_PER_DAY": "20.00"
       }
@@ -113,10 +99,78 @@ Add to your MCP config file:
 }
 ```
 
-**Config locations:**
+Requirements:
+
+- Node.js 18 or newer
+- Claude Desktop installed
+- an Algorand mnemonic for the wallet you want PIXA to use
+
+Config locations:
 
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+### Installation checklist
+
+- If you want the simplest path, use the release bundle
+- If you want code-level control, use the npm package
+- Keep a spending cap in place before testing with real funds
+- Use testnet first if you are validating a new setup
+
+## 🧪 Testing Guide
+
+PIXA is designed to be tested in layers. Use the smallest command that proves the thing you changed.
+
+### Root package tests
+
+Run these from the repository root:
+
+```bash
+npm test
+npm run typecheck
+npm run build
+```
+
+What each command checks:
+
+- `npm test` runs the unit and integration-style test suite
+- `npm run typecheck` verifies the TypeScript surface
+- `npm run build` checks the production bundle still compiles
+
+### Recommended manual verification
+
+After the automated checks, smoke test the real user flows:
+
+1. Start Claude Desktop with PIXA installed.
+2. Call `check_balance`.
+3. Call `request_funding`.
+4. Call `pay` against a known x402-gated service.
+5. Call `x402_fetch` on a supported endpoint.
+6. Open the on-ramp flow and verify it launches correctly.
+
+### Hub-specific checks
+
+If you are working on the treasury hub, test that package separately:
+
+```bash
+cd pixa-hub
+npm test
+npm run typecheck
+npm run build
+```
+
+If the hub depends on external services, verify:
+
+- the database connection string is present
+- the payment settlement endpoint is reachable
+- the seller x402 flow returns `402` before payment and `200` after payment
+
+### What to document when you change code
+
+- the command you used to test it
+- any mocked dependencies
+- any manual browser or wallet step that still needs verification
+- any known limitations
 
 ## 🏗️ Architecture
 
@@ -279,7 +333,8 @@ MIT License - See [LICENSE](LICENSE) for details
 ## 🔗 Links
 
 - **Website:** [pixa-wallet.vercel.app](https://pixa-wallet.vercel.app)
-- **GitHub:** [github.com/soumyacodes007/algorand-wallet](https://github.com/soumyacodes007/algorand-wallet)
+- **GitHub:** [github.com/soumyacodes007/Pixa](https://github.com/soumyacodes007/Pixa)
+- **Releases:** [github.com/soumyacodes007/Pixa/releases/tag/onramp](https://github.com/soumyacodes007/Pixa/releases/tag/onramp)
 - **Unified AI Layer:** [unified-agent-layer-production.up.railway.app](https://unified-agent-layer-production.up.railway.app)
 
 ## 🤝 Contributing
